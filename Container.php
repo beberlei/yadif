@@ -55,13 +55,9 @@ class Yadif_Container
     // singletons
     protected $_singletons = array();
 
-	public function __construct(array $config = null)
+	public function __construct(array $config = array())
 	{
-		if (isset($config)) {
-			if (!is_array($config)) {
-                throw new Yadif_Exception('$config not array, is ' . gettype($config));
-            }
-
+		if (isset($config) && is_array($config)) {
 			foreach ($config as $componentName => $componentConfig) {
 				$this->addComponent( $componentName, $componentConfig );
 			}
@@ -74,7 +70,7 @@ class Yadif_Container
 	 * @param array|string A configuration array or the filename of a PHP 
 	 * file that returns a configuration array
 	 */
-	static public function create($config = null)
+	static public function create($config = array())
 	{
 		if (is_string($config)) {
 			$filename = (substr($config, -4, 4) === '.php') ? $config : $config . '.php';
@@ -125,16 +121,12 @@ class Yadif_Container
 	 */
 	public function addComponent($name = null, array $config = null)
 	{
-		if (!is_string($name) && !($name instanceof Yadif_Container)) {
-			throw new Yadif_Exception('$string not string|Yadif_Container, is ' . gettype($string));
-        }
-
 		if ($name instanceof Yadif_Container) { // if Yadif_Container
 			$foreignContainer = $name->getContainer();
 
 			// merge containers, @TODO: duplicates
 			$this->_container = array_merge($this->_container, $foreignContainer);
-		} else {
+		} elseif(is_string($name)) {
             if (!is_array($config) || !isset($config[self::CONFIG_CLASS])) { // assume name is the class name
                 $config[self::CONFIG_CLASS] = $name;
             }
@@ -149,6 +141,8 @@ class Yadif_Container
             }
 
             $this->_container[ $name ] = $config;
+        } else {
+            throw new Yadif_Exception('$string not string|Yadif_Container, is ' . gettype($name));
         }
 
 		return $this;
