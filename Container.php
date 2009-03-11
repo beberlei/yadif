@@ -41,11 +41,19 @@ class Yadif_Container
 	 */
 	const CONFIG_ARGUMENTS = 'arguments';
 
+    /**
+     * Singleton index key of component $config
+     */
+    const CONFIG_SINGLETON = 'singleton';
+
 	// container of component configurations
 	protected $_container = array();
 
 	// parameters which have been set, expected to be bound
 	protected $_parameters = array();
+
+    // singletons
+    protected $_singletons = array();
 
 	public function __construct(array $config = null)
 	{
@@ -247,47 +255,58 @@ class Yadif_Container
         }
 
 		$component = $this->_container[ $name ];
+        $singleton = false;
+        if(isset($component[self::CONFIG_SINGLETON]) && $component[self::CONFIG_SINGLETON] == true) {
+            $singleton = true;
+            if(isset($this->_singletons[$name])) {
+                return $this->_singletons[$name];
+            }
+        }
 
 		$componentReflection = new ReflectionClass($component[ self::CONFIG_CLASS ]);
 
 		$componentArgs = $component[ self::CONFIG_ARGUMENTS ];
 
 		if (empty($componentArgs)) { // if no instructions
-			return $componentReflection->newInstance();
-        }
+			$component = $componentReflection->newInstance();
+        } else {
+            foreach ($componentArgs as $method => $args) {
+                $injection = array();
 
-		foreach ($componentArgs as $method => $args) {
-			$injection = array();
-
-			foreach ($args as $arg) {
-                $injection[] = $this->getComponent($arg);
-            }
-
-			// method has hash ignore point
-			if (strstr($method, self::METHOD_TRIM_CHAR)) {
-				$method = substr($method, 0, (int) strpos($method, self::METHOD_TRIM_CHAR));
-            }
-
-			if ($componentReflection->getMethod($method)->isConstructor()) {
-				if (empty($injection)) {
-					$component = $componentReflection->newInstance();
-				} else {
-					$component = $componentReflection->newInstanceArgs($injection);
-				}
-			} else { // if not constructor
-				if (!is_object($component)) {
-					$component = $componentReflection->newInstance();
+                foreach ($args as $arg) {
+                    $injection[] = $this->getComponent($arg);
                 }
 
-				if (empty($injection)) {
-					$componentReflection->getMethod($method)
-										->invoke($component);
-				} else {
-					$componentReflection->getMethod($method)
-										->invokeArgs( $component, $injection );
-				}
-			}
-		}
+                // method has hash ignore point
+                if (strstr($method, self::METHOD_TRIM_CHAR)) {
+                    $method = substr($method, 0, (int) strpos($method, self::METHOD_TRIM_CHAR));
+                }
+
+                if ($componentReflection->getMethod($method)->isConstructor()) {
+                    if (empty($injection)) {
+                        $component = $componentReflection->newInstance();
+                    } else {
+                        $component = $componentReflection->newInstanceArgs($injection);
+                    }
+                } else { // if not constructor
+                    if (!is_object($component)) {
+                        $component = $componentReflection->newInstance();
+                    }
+
+                    if (empty($injection)) {
+                        $componentReflection->getMethod($method)
+                                            ->invoke($component);
+                    } else {
+                        $componentReflection->getMethod($method)
+                                            ->invokeArgs( $component, $injection );
+                    }
+                }
+            }
+        }
+
+        if($singleton === true) {
+            $this->_singletons[$name] = $component;
+        }
 
 		return $component;
 	}
