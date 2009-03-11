@@ -134,24 +134,22 @@ class Yadif_Container
 
 			// merge containers, @TODO: duplicates
 			$this->_container = array_merge($this->_container, $foreignContainer);
+		} else {
+            if (!is_array($config) || !isset($config[self::CONFIG_CLASS])) { // assume name is the class name
+                $config[self::CONFIG_CLASS] = $name;
+            }
 
-			return $this;
-		}
+            if (!isset($config[self::CONFIG_ARGUMENTS]) || !is_array($config[self::CONFIG_ARGUMENTS])) {
+                $config[ self::CONFIG_ARGUMENTS ] = array();
+            }
 
-		if (!is_array($config) || !isset($config[self::CONFIG_CLASS])) { // assume name is the class name
-			$config[self::CONFIG_CLASS] = $name;
-		}
+            // if class is set and doesn't exist
+            if (!class_exists( $config[self::CONFIG_CLASS] )) {
+                throw new Yadif_Exception( 'Class ' . $config[self::CONFIG_CLASS] . ' not found' );
+            }
 
-		if (!isset($config[self::CONFIG_ARGUMENTS]) || !is_array($config[self::CONFIG_ARGUMENTS])) {
-			$config[ self::CONFIG_ARGUMENTS ] = array();
+            $this->_container[ $name ] = $config;
         }
-
-		// if class is set and doesn't exist
-		if (!class_exists( $config[self::CONFIG_CLASS] )) {
-			throw new Yadif_Exception( 'Class ' . $config[self::CONFIG_CLASS] . ' not found' );
-        }
-
-		$this->_container[ $name ] = $config;
 
 		return $this;
 	}
