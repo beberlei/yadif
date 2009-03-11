@@ -147,7 +147,7 @@ class Yadif_Container
 	 * @param mixed $value The value to bind to the parameter
 	 * @return Yadif_Container
 	 */
-	public function bindParam($param = null, $value)
+	public function bindParam($param, $value)
 	{
 		if (!is_string($param)) throw new Yadif_Exception('$param not string, is ' . gettype($param));
 
