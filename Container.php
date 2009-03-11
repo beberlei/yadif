@@ -221,14 +221,18 @@ class Yadif_Container
         }
 
 		// if is string
-		if ($name{0} === self::STRING_IDENTIFIER) return $this->_parseString($name);
+		if ($name{0} === self::STRING_IDENTIFIER) {
+            return $this->_parseString($name);
+        }
 
 		// if we're trying to "getParameter" (see the loop below)
-		if (array_key_exists($name, $this->_parameters))
+		if (array_key_exists($name, $this->_parameters)) {
 			return $this->getParam($name);
+        }
 
-		if (!array_key_exists($name, $this->_container))
+		if (!array_key_exists($name, $this->_container)) {
 			throw new Yadif_Exception("'$name' not in " . '$this->_container or $this->_parameters');
+        }
 
 		$component = $this->_container[ $name ];
 
@@ -236,19 +240,23 @@ class Yadif_Container
 
 		$componentArgs = $component[ self::CONFIG_ARGUMENTS ];
 
-		if (empty($componentArgs)) // if no instructions
+		if (empty($componentArgs)) { // if no instructions
 			return $componentReflection->newInstance();
+        }
 
 		$currentIndex = 0;
 
 		foreach ($componentArgs as $method => $args) {
 			$injection = array();
 
-			foreach ($args as $arg) $injection[] = $this->getComponent($arg);
+			foreach ($args as $arg) {
+                $injection[] = $this->getComponent($arg);
+            }
 
 			// method has hash ignore point
-			if (strstr($method, self::METHOD_TRIM_CHAR))
+			if (strstr($method, self::METHOD_TRIM_CHAR)) {
 				$method = substr($method, 0, (int) strpos($method, self::METHOD_TRIM_CHAR));
+            }
 
 			if ($componentReflection->getMethod($method)->isConstructor()) {
 				if (empty($injection)) {
@@ -257,8 +265,9 @@ class Yadif_Container
 					$component = $componentReflection->newInstanceArgs($injection);
 				}
 			} else { // if not constructor
-				if (!is_object($component)) 
+				if (!is_object($component)) {
 					$component = $componentReflection->newInstance();
+                }
 
 				if (empty($injection)) {
 					$componentReflection->getMethod($method)
