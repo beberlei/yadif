@@ -210,11 +210,15 @@ class Yadif_Container
 	public function getComponent($name)
 	{
 		if (is_array($name)) {
-			foreach ($name as &$value) $value = $this->getComponent($value);
+			foreach ($name as $k =>$value) {
+                $name[$k] = $this->getComponent($value);
+            }
 			return $name;
 		}
 
-		if (!is_string($name)) throw new Yadif_Exception('$name not string, is ' . gettype($name));
+		if (!is_string($name)) {
+            throw new Yadif_Exception('$name not string, is ' . gettype($name));
+        }
 
 		// if is string
 		if ($name{0} === self::STRING_IDENTIFIER) return $this->_parseString($name);
