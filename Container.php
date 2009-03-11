@@ -207,7 +207,7 @@ class Yadif_Container
 	 * @param mixed $name The name of the component
 	 * @return mixed 
 	 */
-	public function getComponent($name = null)
+	public function getComponent($name)
 	{
 		if (is_array($name)) {
 			foreach ($name as &$value) $value = $this->getComponent($value);
