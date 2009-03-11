@@ -50,7 +50,9 @@ class Yadif_Container
 	public function __construct(array $config = null)
 	{
 		if (isset($config)) {
-			if (!is_array($config)) throw new Yadif_Exception('$config not array, is ' . gettype($config));
+			if (!is_array($config)) {
+                throw new Yadif_Exception('$config not array, is ' . gettype($config));
+            }
 
 			foreach ($config as $componentName => $componentConfig) {
 				$this->addComponent( $componentName, $componentConfig );
@@ -68,8 +70,7 @@ class Yadif_Container
 	{
 		if (is_string($config)) {
 			$filename = (substr($config, -4, 4) === '.php') ? $config : $config . '.php';
-			if (substr($filename, -13, 13) === 'Container.php' &&
-				is_array(include $filename)) {
+			if (substr($filename, -13, 13) === 'Container.php' && is_array(include $filename)) {
 				return new Yadif_Container(include $filename);
 			} else {
 				throw new Yadif_Exception("$filename not file");
@@ -112,8 +113,9 @@ class Yadif_Container
 	 */
 	public function addComponent($name = null, array $config = null)
 	{
-		if (!is_string($name) && !($name instanceof Yadif_Container)) 
+		if (!is_string($name) && !($name instanceof Yadif_Container)) {
 			throw new Yadif_Exception('$string not string|Yadif_Container, is ' . gettype($string));
+        }
 
 		if ($name instanceof Yadif_Container) { // if Yadif_Container
 			$foreignContainer = $name->getContainer();
@@ -128,12 +130,14 @@ class Yadif_Container
 			$config[self::CONFIG_CLASS] = $name;
 		}
 
-		if (!isset($config[self::CONFIG_ARGUMENTS]) || !is_array($config[self::CONFIG_ARGUMENTS]))
+		if (!isset($config[self::CONFIG_ARGUMENTS]) || !is_array($config[self::CONFIG_ARGUMENTS])) {
 			$config[ self::CONFIG_ARGUMENTS ] = array();
+        }
 
 		// if class is set and doesn't exist
-		if (!class_exists( $config[self::CONFIG_CLASS] ))
+		if (!class_exists( $config[self::CONFIG_CLASS] )) {
 			throw new Yadif_Exception( 'Class ' . $config[self::CONFIG_CLASS] . ' not found' );
+        }
 
 		$this->_container[ $name ] = $config;
 
@@ -149,10 +153,13 @@ class Yadif_Container
 	 */
 	public function bindParam($param, $value)
 	{
-		if (!is_string($param)) throw new Yadif_Exception('$param not string, is ' . gettype($param));
+		if (!is_string($param)) {
+            throw new Yadif_Exception('$param not string, is ' . gettype($param));
+        }
 
-		if ($param{0} != ':')
+		if ($param{0} != ':') {
 			throw new Yadif_Exception($param . ' must start with a colon (:)');
+        }
 
 		$this->_parameters[$param] = $value;
 
@@ -181,8 +188,9 @@ class Yadif_Container
 	 */
 	public function bindParams($params = null)
 	{
-		if (!is_array($params))
+		if (!is_array($params)) {
 			throw new Yadif_Exception('$params must be array, is ' . gettype($params));
+        }
 
 		foreach ($params as $param => $value) {
 			$this->bindParam($param, $value);
@@ -304,21 +312,25 @@ class Yadif_Container
 	 */
 	public function replace($name = null, $replacement = null)
 	{
-		if (!is_string($name))
+		if (!is_string($name)) {
 			throw new Yadif_Exception('$name not string, is ' . gettype($name));
+        }
 		
-		if (!is_string($replacement) && !is_array($replacement))
+		if (!is_string($replacement) && !is_array($replacement)) {
 			throw new Yadif_Exception('$replacement not string|array, is ' . gettype($name));
+        }
 
-		if (!array_key_exists($name, $this->_container))
+		if (!array_key_exists($name, $this->_container)) {
 			throw new Yadif_Exception('$name ' . $name . ' not in $this->_container');
+        }
 
 		$replacementClass = is_array($replacement) ? $replacement[self::CONFIG_CLASS] : $replacement;
 
 		assert(is_string($replacementClass));
 
-		if (!class_exists($replacementClass))
+		if (!class_exists($replacementClass)) {
 			throw new Yadif_Exception('Class ' . $replacement . ' not found');
+        }
 
 		if (is_string($replacement)) {
 			$this->_container[$name][self::CONFIG_CLASS] = $replacement;
