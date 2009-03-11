@@ -46,15 +46,32 @@ class Yadif_Container
      */
     const CONFIG_SINGLETON = 'singleton';
 
-	// container of component configurations
+	/**
+     * container of component configurations
+     *
+     * @var array
+     */
 	protected $_container = array();
 
-	// parameters which have been set, expected to be bound
+	/**
+     * parameters which have been set, expected to be bound
+     *
+     * @var array
+     */
 	protected $_parameters = array();
 
-    // singletons
+    /**
+     * singletons
+     *
+     * @var array
+     */
     protected $_singletons = array();
 
+    /**
+     * Construct Dependency Injection Container
+     *
+     * @param array $config
+     */
 	public function __construct(array $config = array())
 	{
 		if (isset($config) && is_array($config)) {
@@ -303,6 +320,11 @@ class Yadif_Container
 		return $component;
 	}
 
+    /**
+     * Instantiate and inject all components in the container and return hashmap.
+     *
+     * @return array
+     */
 	public function getComponents()
 	{
 		$components = array();
