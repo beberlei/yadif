@@ -252,8 +252,6 @@ class Yadif_Container
 			return $componentReflection->newInstance();
         }
 
-		$currentIndex = 0;
-
 		foreach ($componentArgs as $method => $args) {
 			$injection = array();
 
@@ -285,8 +283,6 @@ class Yadif_Container
 										->invokeArgs( $component, $injection );
 				}
 			}
-
-			++$currentIndex;
 		}
 
 		return $component;
