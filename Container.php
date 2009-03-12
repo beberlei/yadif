@@ -56,6 +56,11 @@ class Yadif_Container
      */
     const CONFIG_SCOPE = 'scope';
 
+    /**
+     * Setter Methods to call config index key
+     */
+    const CONFIG_METHODS = 'methods';
+
 	/**
      * container of component configurations
      *
@@ -172,6 +177,10 @@ class Yadif_Container
                 $config[self::CONFIG_SCOPE] = self::SCOPE_SINGLETON;
             }
 
+            if(!isset($config[self::CONFIG_METHODS])) {
+                $config[self::CONFIG_METHODS] = array();
+            }
+
             $this->_container[ $name ] = $config;
         } else {
             throw new Yadif_Exception('$string not string|Yadif_Container, is ' . gettype($name));
@@ -286,41 +295,32 @@ class Yadif_Container
 
 		$componentReflection = new ReflectionClass($component[ self::CONFIG_CLASS ]);
 
-		$componentArgs = $component[ self::CONFIG_ARGUMENTS ];
+		$constructorArguments = $component[self::CONFIG_ARGUMENTS];
+        $setterMethods        = $component[self::CONFIG_METHODS];
 
-		if (empty($componentArgs)) { // if no instructions
+		if (empty($constructorArguments)) { // if no instructions
 			$component = $componentReflection->newInstance();
         } else {
-            foreach ($componentArgs as $method => $args) {
-                $injection = array();
+            $constructorInjection = $this->getComponent($constructorArguments);
+            $component = $componentReflection->newInstanceArgs($constructorInjection);
+            unset($constructorInjection);
+        }
 
-                foreach ($args as $arg) {
-                    $injection[] = $this->getComponent($arg);
-                }
+        foreach ($setterMethods as $methodName => $argsName) {
+            $injection = $this->getComponent($argsName);
 
-                // method has hash ignore point
-                if (strstr($method, self::METHOD_TRIM_CHAR)) {
-                    $method = substr($method, 0, (int) strpos($method, self::METHOD_TRIM_CHAR));
-                }
+            // method has hash ignore point
+            if (strstr($methodName, self::METHOD_TRIM_CHAR)) {
+                $methodName = substr($methodName, 0, (int) strpos($methodName, self::METHOD_TRIM_CHAR));
+            }
 
-                if ($componentReflection->getMethod($method)->isConstructor()) {
-                    if (empty($injection)) {
-                        $component = $componentReflection->newInstance();
-                    } else {
-                        $component = $componentReflection->newInstanceArgs($injection);
-                    }
-                } else { // if not constructor
-                    if (!is_object($component)) {
-                        $component = $componentReflection->newInstance();
-                    }
-
-                    if (empty($injection)) {
-                        $componentReflection->getMethod($method)
-                                            ->invoke($component);
-                    } else {
-                        $componentReflection->getMethod($method)
-                                            ->invokeArgs( $component, $injection );
-                    }
+            if ($componentReflection->getMethod($methodName)->isConstructor()) {
+                throw new Yadif_Exception("Cannot use constructor in 'methods' setter injection list. Use 'arguments' key instead.");
+            } else {
+                if (empty($injection)) {
+                    $componentReflection->getMethod($methodName)->invoke($component);
+                } else {
+                    $componentReflection->getMethod($methodName)->invokeArgs( $component, $injection );
                 }
             }
         }

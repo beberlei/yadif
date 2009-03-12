@@ -59,9 +59,7 @@ class YadifBindParamsTest extends PHPUnit_Framework_TestCase
         $config = array(
             'YadifBar' => array(
                 'class'     => 'YadifBar',
-                'arguments' => array(
-                    '__construct' => array(':foo')
-                ),
+                'arguments' => array(':foo'),
             )
         );
         $yadif = new Yadif_Container($config);

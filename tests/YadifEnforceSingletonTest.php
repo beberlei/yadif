@@ -10,14 +10,16 @@ class YadifEnforceSingletonTest extends PHPUnit_Framework_TestCase
     {
         $config = array(
             'YadifFoo' => array(
-                'class' => 'YadifFoo',
-                'arguments' => array(
-                    '__construct' => array('YadifBaz', 'YadifBaz'),
-                ),
+                'class'     => 'YadifFoo',
+                'scope'     => Yadif_Container::SCOPE_SINGLETON,
+                'arguments' => array('YadifBaz', 'YadifBaz'),
+                'methods'   => array(),
             ),
             'YadifBaz' => array(
-                'class' => 'YadifBaz',
-                'scope' => Yadif_Container::SCOPE_SINGLETON,
+                'class'     => 'YadifBaz',
+                'scope'     => Yadif_Container::SCOPE_SINGLETON,
+                'arguments' => array(),
+                'methods'   => array(),
             )
         );
         $yadif = new Yadif_Container($config);
@@ -30,8 +32,10 @@ class YadifEnforceSingletonTest extends PHPUnit_Framework_TestCase
     {
         $config = array(
             'YadifBaz' => array(
-                'class' => 'YadifBaz',
-                'scope' => Yadif_Container::SCOPE_SINGLETON,
+                'class'     => 'YadifBaz',
+                'scope'     => Yadif_Container::SCOPE_SINGLETON,
+                'arguments' => array(),
+                'methods'   => array(),
             )
         );
         $yadif = new Yadif_Container($config);
@@ -46,14 +50,16 @@ class YadifEnforceSingletonTest extends PHPUnit_Framework_TestCase
     {
         $config = array(
             'YadifFoo' => array(
-                'class' => 'YadifFoo',
-                'arguments' => array(
-                    '__construct' => array('YadifBaz', 'YadifBaz'),
-                ),
+                'class'     => 'YadifFoo',
+                'scope'     => Yadif_Container::SCOPE_SINGLETON,
+                'arguments' => array('YadifBaz', 'YadifBaz'),
+                'methods'   => array(),
             ),
             'YadifBaz' => array(
-                'class' => 'YadifBaz',
-                'scope' => Yadif_Container::SCOPE_PROTOTYPE,
+                'class'     => 'YadifBaz',
+                'scope'     => Yadif_Container::SCOPE_PROTOTYPE,
+                'arguments' => array(),
+                'methods'   => array(),
             )
         );
         $yadif = new Yadif_Container($config);

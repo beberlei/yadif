@@ -20,9 +20,7 @@ class YadifInstantiateObjectGraphTest extends PHPUnit_Framework_TestCase
         $config = array(
             'YadifBar' => array(
                 'class'     => 'YadifBar',
-                'arguments' => array(
-                    '__construct' => array('YadifBaz')
-                )
+                'arguments' => array('YadifBaz')
             ),
             'YadifBaz' => array(
                 'class'     => 'YadifBaz',
@@ -39,15 +37,11 @@ class YadifInstantiateObjectGraphTest extends PHPUnit_Framework_TestCase
         $config = array(
             'YadifFoo' => array(
                 'class'     => 'YadifFoo',
-                'arguments' => array(
-                    '__construct' => array('YadifBaz', 'YadifBar'),
-                ),
+                'arguments' => array('YadifBaz', 'YadifBar'),
             ),
             'YadifBar' => array(
                 'class'     => 'YadifBar',
-                'arguments' => array(
-                    '__construct' => array('YadifBaz')
-                )
+                'arguments' => array('YadifBaz')
             ),
             'YadifBaz' => array(
                 'class'     => 'YadifBaz',
@@ -66,7 +60,7 @@ class YadifInstantiateObjectGraphTest extends PHPUnit_Framework_TestCase
         $config = array(
             'YadifBaz' => array(
                 'class'     => 'YadifBaz',
-                'arguments' => array(
+                'methods' => array(
                     'setA' => array('stdClass'),
                 ),
             ),
