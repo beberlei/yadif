@@ -157,6 +157,11 @@ class Yadif_Container
                 throw new Yadif_Exception( 'Class ' . $config[self::CONFIG_CLASS] . ' not found' );
             }
 
+            // check for singleton config parameter and set it to true as default if not found.
+            if(!isset($config[self::CONFIG_SINGLETON])) {
+                $config[self::CONFIG_SINGLETON] = true;
+            }
+
             $this->_container[ $name ] = $config;
         } else {
             throw new Yadif_Exception('$string not string|Yadif_Container, is ' . gettype($name));
@@ -264,12 +269,9 @@ class Yadif_Container
         }
 
 		$component = $this->_container[ $name ];
-        $singleton = false;
-        if(isset($component[self::CONFIG_SINGLETON]) && $component[self::CONFIG_SINGLETON] == true) {
-            $singleton = true;
-            if(isset($this->_singletons[$name])) {
-                return $this->_singletons[$name];
-            }
+        $singleton = $component[self::CONFIG_SINGLETON];
+        if($singleton == true && isset($this->_singletons[$name])) {
+            return $this->_singletons[$name];
         }
 
 		$componentReflection = new ReflectionClass($component[ self::CONFIG_CLASS ]);

@@ -22,12 +22,20 @@ class YadifBindParamsTest extends PHPUnit_Framework_TestCase
         $yadif->bindParam("foo", "bar");
     }
 
-    public function setGetParameters()
+    public function testSetGetParameters()
     {
         $yadif = new Yadif_Container();
         $yadif->bindParam(":foo", "bar");
 
         $this->assertEquals(array(":foo" => "bar"), $yadif->getParameters());
+    }
+
+    public function testSetMultipleParams()
+    {
+        $yadif = new Yadif_Container();
+        $yadif->bindParams(array(":foo" => "bar", ":bar" => "baz"));
+
+        $this->assertEquals(array(":foo" => "bar", ":bar" => "baz"), $yadif->getParameters());
     }
 
     public function testGetParam()

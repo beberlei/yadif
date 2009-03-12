@@ -36,9 +36,9 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
     public function testAddComponent()
     {
         $yadif = new Yadif_Container();
-        $yadif->addComponent("YadifBaz", array("class" => "YadifBaz", "arguments" => array()));
+        $yadif->addComponent("YadifBaz", array("class" => "YadifBaz", "arguments" => array(), "singleton" => true));
 
-        $expected = array("YadifBaz" => array("class" => "YadifBaz", "arguments" => array()));
+        $expected = array("YadifBaz" => array("class" => "YadifBaz", "arguments" => array(), "singleton" => true));
         $this->assertEquals($expected, $this->readAttribute($yadif, '_container'));
     }
 
@@ -47,7 +47,7 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
         $yadif = new Yadif_Container();
         $yadif->addComponent("YadifBaz");
 
-        $expected = array("YadifBaz" => array("class" => "YadifBaz", "arguments" => array()));
+        $expected = array("YadifBaz" => array("class" => "YadifBaz", "arguments" => array(), "singleton" => true));
         $this->assertEquals($expected, $this->readAttribute($yadif, '_container'));
     }
 
@@ -78,7 +78,7 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
         $yadif = new Yadif_Container();
         $yadif->addComponent("stdClass");
         
-        $expected = array("stdClass" => array("class" => "stdClass", "arguments" => array()));
+        $expected = array("stdClass" => array("class" => "stdClass", "arguments" => array(), "singleton" => true));
         $this->assertEquals($expected, $yadif->getContainer());
     }
     
@@ -90,7 +90,7 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
         $yadif2 = new Yadif_Container();
         $yadif2->addComponent($yadif1);
 
-        $expected = array("stdClass" => array("class" => "stdClass", "arguments" => array()));
+        $expected = array("stdClass" => array("class" => "stdClass", "arguments" => array(), "singleton" => true));
         $this->assertEquals($expected, $this->readAttribute($yadif2, '_container'));
     }
 }
