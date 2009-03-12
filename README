@@ -1,0 +1,81 @@
+Yadif - Yet Another Dependency Injection Framework
+
+* Originally by Thomas McKelvey (https://github.com/tsmckelvey/yadif/tree)
+* Fork by Benjamin Eberlei (https://github.com/beberlei/yadif/tree)
+
+Inject dependencies via a very simple configuration mechanism.
+
+1. Basic Syntax
+================
+Take this constructor and setter-less class:
+
+class Foo
+{
+}
+
+Creating a Yadif Container configured to create this class looks:
+
+$config = array('Foo' => array());
+$yadif  = Yadif_Container::create($config);
+$foo    = $yadif->getComponent('Foo');
+
+2. Object Configuration
+================
+This current fork has a slighty different configuration syntax than the original:
+
+class Foo
+{
+    public function __construct($arg1, $arg2) { }
+
+    public function setterA($arg1) { }
+
+    public function setterB($arg2) { }
+}
+
+$config = array(
+    'Foo' => array(
+        'class' => 'Foo',
+        'arguments' => array('ConstructorArg1', 'ConstructorArg2'),
+        'methods' => array(
+            'setterA' => array('SetterAArg1'),
+            'setterB' => array('SetterBArg1'),
+        ),
+        'scope' => 'singleton',
+    ),
+);
+
+$yadif = new Yadif_Container($config);
+$foo   = $yadif->getComponent("Foo");
+
+Would do internally:
+$foo   = new Foo($yadif->getComponent('ConstructorArg1'), $yadif->getComponent('ConstructorArg2'));
+$foo->setterA($yadif->getComponent('SetterAArg1'));
+$foo->setterB($yadif->getComponent('SetterBArg1'));
+
+Now 'ConstructorArg1', 'ConstructorArg2', 'SetterAArg1' and 'SetterBArg1' would
+also have to be defined in $config for this to work. But i hope you get the idea.
+
+3. Scope Config
+===============
+Currently there are two different scopes: 'singleton' and 'prototype'. The first
+one enforces the creation of only one object of the given type. The second one
+creates new objects on each call of getComponent().
+
+4. Setting non-object parameters
+===============
+Non-object parameters are set in a PDO like binding syntax:
+
+class Foo {
+    public function __construct($bar) { }
+}
+
+$config = array(
+    'Foo' => array(
+        'class' => 'Foo',
+        'arguments' => ':bar',
+    ),
+);
+$yadif = new Yadif_Container($config);
+$yadif->bindParam(':bar', 'BarName');
+
+$foo = $yadif->getComponent('Foo');
