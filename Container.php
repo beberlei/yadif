@@ -21,6 +21,16 @@ require_once 'Exception.php';
  */
 class Yadif_Container
 {
+    /**
+     * Identifier for singleton scope
+     */
+    const SCOPE_SINGLETON = "singleton";
+
+    /**
+     * Identifier for prototype scope (new object each call)
+     */
+    const SCOPE_PROTOTYPE = "prototype";
+
 	/**
 	 * Char we prefix string arguments with to identify as strings
 	 */
@@ -44,7 +54,7 @@ class Yadif_Container
     /**
      * Singleton index key of component $config
      */
-    const CONFIG_SINGLETON = 'singleton';
+    const CONFIG_SCOPE = 'scope';
 
 	/**
      * container of component configurations
@@ -158,8 +168,8 @@ class Yadif_Container
             }
 
             // check for singleton config parameter and set it to true as default if not found.
-            if(!isset($config[self::CONFIG_SINGLETON])) {
-                $config[self::CONFIG_SINGLETON] = true;
+            if(!isset($config[self::CONFIG_SCOPE])) {
+                $config[self::CONFIG_SCOPE] = self::SCOPE_SINGLETON;
             }
 
             $this->_container[ $name ] = $config;
@@ -269,8 +279,8 @@ class Yadif_Container
         }
 
 		$component = $this->_container[ $name ];
-        $singleton = $component[self::CONFIG_SINGLETON];
-        if($singleton == true && isset($this->_singletons[$name])) {
+        $scope = $component[self::CONFIG_SCOPE];
+        if($scope == self::SCOPE_SINGLETON && isset($this->_singletons[$name])) {
             return $this->_singletons[$name];
         }
 
@@ -315,7 +325,7 @@ class Yadif_Container
             }
         }
 
-        if($singleton === true) {
+        if($scope == self::SCOPE_SINGLETON) {
             $this->_singletons[$name] = $component;
         }
 

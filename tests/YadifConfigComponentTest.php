@@ -9,7 +9,7 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
     public function testStaticCreateWithArray()
     {
         $config = array(
-            'YadifBaz' => array('class' => 'YadifBaz', 'arguments' => array(), 'singleton' => false),
+            'YadifBaz' => array('class' => 'YadifBaz', 'arguments' => array(), 'scope' => Yadif_Container::SCOPE_SINGLETON),
         );
         $yadif = Yadif_Container::create($config);
         $this->assertEquals($config, $this->readAttribute($yadif, '_container'));
@@ -36,9 +36,9 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
     public function testAddComponent()
     {
         $yadif = new Yadif_Container();
-        $yadif->addComponent("YadifBaz", array("class" => "YadifBaz", "arguments" => array(), "singleton" => true));
+        $yadif->addComponent("YadifBaz", array("class" => "YadifBaz", "arguments" => array(), 'scope' => Yadif_Container::SCOPE_SINGLETON));
 
-        $expected = array("YadifBaz" => array("class" => "YadifBaz", "arguments" => array(), "singleton" => true));
+        $expected = array("YadifBaz" => array("class" => "YadifBaz", "arguments" => array(), 'scope' => Yadif_Container::SCOPE_SINGLETON));
         $this->assertEquals($expected, $this->readAttribute($yadif, '_container'));
     }
 
@@ -47,7 +47,7 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
         $yadif = new Yadif_Container();
         $yadif->addComponent("YadifBaz");
 
-        $expected = array("YadifBaz" => array("class" => "YadifBaz", "arguments" => array(), "singleton" => true));
+        $expected = array("YadifBaz" => array("class" => "YadifBaz", "arguments" => array(), 'scope' => Yadif_Container::SCOPE_SINGLETON));
         $this->assertEquals($expected, $this->readAttribute($yadif, '_container'));
     }
 
@@ -78,7 +78,7 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
         $yadif = new Yadif_Container();
         $yadif->addComponent("stdClass");
         
-        $expected = array("stdClass" => array("class" => "stdClass", "arguments" => array(), "singleton" => true));
+        $expected = array("stdClass" => array("class" => "stdClass", "arguments" => array(), 'scope' => Yadif_Container::SCOPE_SINGLETON));
         $this->assertEquals($expected, $yadif->getContainer());
     }
     
@@ -90,7 +90,7 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
         $yadif2 = new Yadif_Container();
         $yadif2->addComponent($yadif1);
 
-        $expected = array("stdClass" => array("class" => "stdClass", "arguments" => array(), "singleton" => true));
+        $expected = array("stdClass" => array("class" => "stdClass", "arguments" => array(), 'scope' => Yadif_Container::SCOPE_SINGLETON));
         $this->assertEquals($expected, $this->readAttribute($yadif2, '_container'));
     }
 }

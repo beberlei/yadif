@@ -17,12 +17,29 @@ class YadifEnforceSingletonTest extends PHPUnit_Framework_TestCase
             ),
             'YadifBaz' => array(
                 'class' => 'YadifBaz',
+                'scope' => Yadif_Container::SCOPE_SINGLETON,
             )
         );
         $yadif = new Yadif_Container($config);
 
         $component = $yadif->getComponent("YadifFoo");
         $this->assertTrue($component->a === $component->b, 'Enforcing singleton of object did not work!');
+    }
+
+    public function testMultipleFetchesOfSameSingletonObjectReturnSameReference()
+    {
+        $config = array(
+            'YadifBaz' => array(
+                'class' => 'YadifBaz',
+                'scope' => Yadif_Container::SCOPE_SINGLETON,
+            )
+        );
+        $yadif = new Yadif_Container($config);
+
+        $component1 = $yadif->getComponent("YadifBaz");
+        $component2 = $yadif->getComponent("YadifBaz");
+
+        $this->assertTrue($component1 === $component2, 'Enforcing singleton of object did not work!');
     }
 
     public function testInstantiateExplicitlyDisabledSingletonLeafes()
@@ -36,7 +53,7 @@ class YadifEnforceSingletonTest extends PHPUnit_Framework_TestCase
             ),
             'YadifBaz' => array(
                 'class' => 'YadifBaz',
-                'singleton' => false,
+                'scope' => Yadif_Container::SCOPE_PROTOTYPE,
             )
         );
         $yadif = new Yadif_Container($config);
