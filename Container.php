@@ -61,6 +61,11 @@ class Yadif_Container
      */
     const CONFIG_METHODS = 'methods';
 
+    /**
+     * Method Name
+     */
+    const CONFIG_METHOD = 'method';
+
 	/**
      * container of component configurations
      *
@@ -306,18 +311,26 @@ class Yadif_Container
             unset($constructorInjection);
         }
 
-        foreach ($setterMethods as $methodName => $argsName) {
-            $injection = $this->getComponent($argsName);
+        foreach ($setterMethods as $method) {
+            if(!isset($method[self::CONFIG_METHOD])) {
+                throw new Yadif_Exception("No method name was set for injection via method.");
+            }
+            $methodName = $method[self::CONFIG_METHOD];
+            
+            $injection = array();
+            if(isset($method[self::CONFIG_ARGUMENTS])) {
+                $argsName = $method[self::CONFIG_ARGUMENTS];
+                if(!is_array($argsName)) {
+                    throw new Yadif_Exception("Argument names for method injection '".$methodName."' have to an array.");
+                }
 
-            // method has hash ignore point
-            if (strstr($methodName, self::METHOD_TRIM_CHAR)) {
-                $methodName = substr($methodName, 0, (int) strpos($methodName, self::METHOD_TRIM_CHAR));
+                $injection = $this->getComponent($argsName);
             }
 
             if ($componentReflection->getMethod($methodName)->isConstructor()) {
                 throw new Yadif_Exception("Cannot use constructor in 'methods' setter injection list. Use 'arguments' key instead.");
             } else {
-                if (empty($injection)) {
+                if(count($injection) == 0) {
                     $componentReflection->getMethod($methodName)->invoke($component);
                 } else {
                     $componentReflection->getMethod($methodName)->invokeArgs($component, $injection);

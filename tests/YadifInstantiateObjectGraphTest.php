@@ -63,7 +63,7 @@ class YadifInstantiateObjectGraphTest extends PHPUnit_Framework_TestCase
                 'methods' => array(
                     array(
                         'method' => 'setA',
-                        'arguments' => 'stdClass',
+                        'arguments' => array('stdClass'),
                     ),
                 ),
             ),

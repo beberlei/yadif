@@ -27,9 +27,9 @@ class Foo
 {
     public function __construct($arg1, $arg2) { }
 
-    public function setterA($arg1) { }
+    public function setA($arg1) { }
 
-    public function setterB($arg2) { }
+    public function setB($arg2, $arg3) { }
 }
 
 $config = array(
@@ -37,11 +37,22 @@ $config = array(
         'class' => 'Foo',
         'arguments' => array('ConstructorArg1', 'ConstructorArg2'),
         'methods' => array(
-            'setterA' => array('SetterAArg1'),
-            'setterB' => array('SetterBArg1'),
+            array(
+                'method' => 'setA',
+                'arguments' => array('Inject1'),
+            ),
+            array(
+                'method' => 'setB',
+                'arguments' => array('Inject2', 'Inject3'),
+            ),
         ),
         'scope' => 'singleton',
     ),
+    'ConstructorArg1' => array('class' => 'ConstructorArg1'),
+    'ConstructorArg2' => array('class' => 'ConstructorArg2'),
+    'Inject1'         => array('class' => 'Inject1'),
+    'Inject2'         => array('class' => 'Inject2'),
+    'Inject3'         => array('class' => 'Inject3'),
 );
 
 $yadif = new Yadif_Container($config);
@@ -49,11 +60,11 @@ $foo   = $yadif->getComponent("Foo");
 
 Would do internally:
 $foo   = new Foo($yadif->getComponent('ConstructorArg1'), $yadif->getComponent('ConstructorArg2'));
-$foo->setterA($yadif->getComponent('SetterAArg1'));
-$foo->setterB($yadif->getComponent('SetterBArg1'));
+$foo->setA($yadif->getComponent('Inject1'));
+$foo->setB($yadif->getComponent('Inject2'), $yadif->getComponent('Inject3'));
 
-Now 'ConstructorArg1', 'ConstructorArg2', 'SetterAArg1' and 'SetterBArg1' would
-also have to be defined in $config for this to work. But i hope you get the idea.
+Now 'ConstructorArg1', 'ConstructorArg2', 'Inject1', 'Inject2' and 'Inject3' would
+also have to be defined as classes to be constructed correctly.
 
 3. Scope Config
 ===============
