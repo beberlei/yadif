@@ -56,6 +56,11 @@ class Yadif_Container
      */
     const CONFIG_METHOD = 'method';
 
+    /**
+     * Factory Config key for classes that are instantiated via a static factory method
+     */
+    const CONFIG_FACTORY = 'factory';
+
 	/**
      * container of component configurations
      *
@@ -278,7 +283,12 @@ class Yadif_Container
 		$constructorArguments = $component[self::CONFIG_ARGUMENTS];
         $setterMethods        = $component[self::CONFIG_METHODS];
 
-		if (empty($constructorArguments)) { // if no instructions
+        if(isset($component[self::CONFIG_FACTORY])) {
+            if(!is_callable($component[self::CONFIG_FACTORY])) {
+                throw new Yadif_Exception("No valid callback given for the factory method of '".$name."'.");
+            }
+            $component = call_user_func_array($component[self::CONFIG_FACTORY], $constructorArguments);
+        } else if(empty($constructorArguments)) { // if no instructions
 			$component = $componentReflection->newInstance();
         } else {
             $constructorInjection = $this->getComponent($constructorArguments);

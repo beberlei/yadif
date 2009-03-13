@@ -197,6 +197,7 @@ $config = array(
             // Set Controller Directory
             array('method' => 'setControllerDirectory', 'arguments' => array('/var/www/application/controllers/'),
         ),
+        'factory' => array('Zend_Controller_Front', 'getInstance'), // Static Factory Method for this class instead of new()
     ),
     'ControllerPluginAccessControl' => array('class' => 'ControllerPluginAccessControlImplementation'),
     'ControllerPluginLogging'       => array(
@@ -225,7 +226,7 @@ $front->dispatch();
 
 Will do the following internally:
 
-$front = new Zend_Controller_Front(); // sadly not working because singleton
+$front = Zend_Controller_Front::getInstance(); // because 'factory' config is set for this one
 
 $request = new Zend_Controller_Request_Http();
 $front->setRequest($request);
