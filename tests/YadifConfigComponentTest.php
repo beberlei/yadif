@@ -3,6 +3,7 @@
 require_once dirname(__FILE__)."/../Container.php";
 require_once "Fixture.php";
 require_once "PHPUnit/Framework.php";
+require_once "Zend/Config.php";
 
 class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
 {
@@ -123,5 +124,18 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
 
         $yadif = new Yadif_Container();
         $yadif->someInvalidCall();
+    }
+
+    public function testConstructorShouldAcceptZendConfigObjects()
+    {
+        $config = array(
+            'YadifBaz' => array('class' => 'YadifBaz'),
+        );
+        $config = new Zend_Config($config);
+
+        $yadif = new Yadif_Container($config);
+
+        $yadif = new Yadif_Container($config);
+        $this->assertTrue($yadif->getComponent('YadifBaz') instanceof YadifBaz);
     }
 }

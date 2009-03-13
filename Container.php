@@ -85,10 +85,14 @@ class Yadif_Container
     /**
      * Construct Dependency Injection Container
      *
-     * @param array $config
+     * @param Zend_Config|array $config
      */
-	public function __construct(array $config = array())
+	public function __construct($config = array())
 	{
+        if($config instanceof Zend_Config) {
+            $config = $config->toArray();
+        }
+
 		if (isset($config) && is_array($config)) {
 			foreach ($config as $componentName => $componentConfig) {
 				$this->addComponent( $componentName, $componentConfig );
