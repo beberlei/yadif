@@ -255,3 +255,26 @@ $front->setParam('db', $db);
 $front->setParam('logger', $logger);
 
 $front->setControllerDirectory('/var/www/application/controllers/');
+
+7. Zend_Config Support
+==================================0
+You can use Zend_config objects as the primary configuration mechanism:
+
+$config = new Zend_Config_Xml("objects.xml");
+$yadif  = new Yadif_Container($config);
+
+Also you can use specific arguments marked with %arg% to replace with values
+inside a given application config object.
+
+$components = array(
+    'YadifBaz' => array(
+        'class' => 'YadifBaz',
+        'methods' => array(
+            array('method' => 'setA', 'arguments' => array('%foo.bar%'))
+        ),
+    ),
+);
+$config = new Zend_Config(array('foo' => array('bar' => 'baz')));
+
+$yadif = new Yadif_Container($components, $config);
+$baz = $yadif->getComponent("YadifBaz");
