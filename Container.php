@@ -274,7 +274,7 @@ class Yadif_Container
         }
 
 		// if is string
-		if ($name{0} === self::STRING_IDENTIFIER) {
+		if($name[0] === self::STRING_IDENTIFIER) {
             return $this->_parseString($name);
         }
 
@@ -320,7 +320,7 @@ class Yadif_Container
                 if (empty($injection)) {
                     $componentReflection->getMethod($methodName)->invoke($component);
                 } else {
-                    $componentReflection->getMethod($methodName)->invokeArgs( $component, $injection );
+                    $componentReflection->getMethod($methodName)->invokeArgs($component, $injection);
                 }
             }
         }
@@ -333,18 +333,31 @@ class Yadif_Container
 	}
 
     /**
-     * Instantiate and inject all components in the container and return hashmap.
+     * Magic Get accesses the {@link getComponent} function and returns the object.
      *
-     * @return array
+     * @param  string $component
+     * @throws Yadif_Exception
+     * @return object
      */
-	public function getComponents()
-	{
-		$components = array();
+    public function __get($name)
+    {
+        return $this->getComponent($name);
+    }
 
-		foreach ($this->_container as $name => $c) {
-			$components[$name] = $this->getComponent($name);
-		}
-
-		return $components;
-	}
+    /**
+     * Call allows to initiate requests to get[ComponetName] and links against {@link getComponent}.
+     *
+     * @param  string $method
+     * @param  array  $arguments
+     * @throws Yadif_Exception
+     * @return object
+     */
+    public function __call($method, $args)
+    {
+        if(!substr($method, 0, 3) !== "get") {
+            throw new Yadif_Exception("Container __call only intercepts get[ComponetName]() like calls.");
+        }
+        $component = substr($method, 3);
+        return $this->getComponent($component);
+    }
 }
