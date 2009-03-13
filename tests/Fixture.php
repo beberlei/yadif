@@ -1,5 +1,16 @@
 <?php
 
+class YadifFactory
+{
+    public static $factoryCalled = false;
+
+    public static function createFoo($a, $b)
+    {
+        self::$factoryCalled = true;
+        return new YadifFoo($a, $b);
+    }
+}
+
 class YadifFoo
 {
     public $a = null;
@@ -35,5 +46,15 @@ class YadifBaz
     public function setA($a)
     {
         $this->a = $a;
+    }
+}
+
+class YadifNoArguments
+{
+    public $called = false;
+
+    public function init()
+    {
+        $this->called = true;
     }
 }

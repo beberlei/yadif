@@ -6,18 +6,9 @@ require_once "PHPUnit/Framework.php";
 
 class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
 {
-    public function testStaticCreateWithArray()
-    {
-        $config = array(
-            'YadifBaz' => array('class' => 'YadifBaz', 'arguments' => array(), 'scope' => Yadif_Container::SCOPE_SINGLETON, 'methods' => array()),
-        );
-        $yadif = Yadif_Container::create($config);
-        $this->assertEquals($config, $this->readAttribute($yadif, '_container'));
-    }
-
     public function testStaticCreateWithEmptyArray()
     {
-        $yadif = Yadif_Container::create();
+        $yadif = new Yadif_Container();
         $this->assertEquals(array(), $this->readAttribute($yadif, '_container'));
     }
 
@@ -25,12 +16,6 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
     {
         $yadif = new Yadif_Container();
         $this->assertEquals(array(), $this->readAttribute($yadif, '_container'));
-    }
-
-    public function testStaticCreateWithInvalidInput()
-    {
-        $this->setExpectedException('Yadif_Exception');
-        $yadif = Yadif_Container::create(true);
     }
 
     public function testAddComponent()
@@ -92,5 +77,51 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
 
         $expected = array("stdClass" => array("class" => "stdClass", "arguments" => array(), 'scope' => Yadif_Container::SCOPE_SINGLETON, 'methods' => array()));
         $this->assertEquals($expected, $this->readAttribute($yadif2, '_container'));
+    }
+
+    public function testGetComponentFromStaticFactory()
+    {
+        YadifFactory::$factoryCalled = false;
+        $config = array(
+            'YadifBaz' => array('class' => 'YadifBaz'),
+            'YadifFoo' => array(
+                'class'     => 'YadifFoo',
+                'factory'   => array('YadifFactory', 'createFoo'),
+                'arguments' => array('YadifBaz', 'YadifBaz'),
+            ),
+        );
+
+        $yadif = new Yadif_Container($config);
+        $foo = $yadif->getComponent('YadifFoo');
+
+        $this->assertTrue(YadifFactory::$factoryCalled);
+    }
+
+    public function testGetComponentMagicGet()
+    {
+        $config = array(
+            'YadifBaz' => array('class' => 'YadifBaz'),
+        );
+
+        $yadif = new Yadif_Container($config);
+        $this->assertTrue($yadif->YadifBaz instanceof YadifBaz);
+    }
+
+    public function testGetComponentMagicCall()
+    {
+        $config = array(
+            'YadifBaz' => array('class' => 'YadifBaz'),
+        );
+
+        $yadif = new Yadif_Container($config);
+        $this->assertTrue($yadif->getYadifBaz() instanceof YadifBaz);
+    }
+
+    public function testMagicCallWhichIsNotGet()
+    {
+        $this->setExpectedException("Yadif_Exception");
+
+        $yadif = new Yadif_Container();
+        $yadif->someInvalidCall();
     }
 }

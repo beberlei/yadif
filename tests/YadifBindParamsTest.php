@@ -6,6 +6,12 @@ require_once "PHPUnit/Framework.php";
 
 class YadifBindParamsTest extends PHPUnit_Framework_TestCase
 {
+    public function testGetParamReturnsNullByDefault()
+    {
+        $yadif = new Yadif_Container();
+        $this->assertNull($yadif->getParam('invalid'));
+    }
+
     public function testParamNameMustBeString()
     {
         $this->setExpectedException("Yadif_Exception");
@@ -67,5 +73,13 @@ class YadifBindParamsTest extends PHPUnit_Framework_TestCase
 
         $component = $yadif->getComponent("YadifBar");
         $this->assertEquals("bar", $component->a);
+    }
+
+    public function testBindParamsNotArrayThrowsException()
+    {
+        $this->setExpectedException("Yadif_Exception");
+
+        $yadif = new Yadif_Container();
+        $yadif->bindParams("notArray");
     }
 }

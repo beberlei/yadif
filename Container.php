@@ -97,32 +97,6 @@ class Yadif_Container
 	}
 
 	/**
-	 * Create a container
-	 *
-	 * @param array|string A configuration array or the filename of a PHP 
-	 * file that returns a configuration array
-	 */
-	static public function create($config = array())
-	{
-		if (is_string($config)) {
-			$filename = (substr($config, -4, 4) === '.php') ? $config : $config . '.php';
-			if (substr($filename, -13, 13) === 'Container.php') {
-                $config = include($filename);
-                if(!is_array($config)) {
-                    throw new Yadif_Exception('Container Config File '.$filename.' does not return an array.');
-                }
-				return new Yadif_Container($config);
-			} else {
-				throw new Yadif_Exception("$filename not file");
-			}
-		} else if (is_array($config)) {
-			return new Yadif_Container($config);
-		}
-
-		throw new Yadif_Exception('$config must be string or array, is ' . gettype($config));
-	}
-
-	/**
 	 * Getter method for internal array of component configurations
 	 *
 	 * @return array
@@ -223,7 +197,7 @@ class Yadif_Container
 			return $this->_parameters[$param];
 		}
 
-		return false;
+		return null;
 	}
 
 	/**
@@ -244,23 +218,30 @@ class Yadif_Container
 		return $this;
 	}
 
+    /**
+     * Get several components at once.
+     *
+     * @param  array $components
+     * @return array
+     */
+    public function getComponents(array $components)
+    {
+        foreach ($components as $k =>$value) {
+            $components[$k] = $this->getComponent($value);
+        }
+        return $components;
+    }
+
 	/**
 	 * Get back a fully assembled component based on the configuration provided beforehand
 	 *
-	 * @param mixed $name The name of the component
+	 * @param  string $name The name of the component
 	 * @return mixed 
 	 */
 	public function getComponent($name)
 	{
-		if (is_array($name)) {
-			foreach ($name as $k =>$value) {
-                $name[$k] = $this->getComponent($value);
-            }
-			return $name;
-		}
-
 		if (!is_string($name)) {
-            throw new Yadif_Exception('$name not string, is ' . gettype($name));
+            return $name;
         }
 
 		// if we're trying to "getParameter" (see the loop below)
@@ -268,7 +249,7 @@ class Yadif_Container
 			return $this->getParam($name);
         }
 
-		if(!is_string($name) || !array_key_exists($name, $this->_container)) {
+		if(!array_key_exists($name, $this->_container)) {
 			return $name;
         }
 
@@ -291,9 +272,7 @@ class Yadif_Container
         } else if(empty($constructorArguments)) { // if no instructions
 			$component = $componentReflection->newInstance();
         } else {
-            $constructorInjection = $this->getComponent($constructorArguments);
-            $component = $componentReflection->newInstanceArgs($constructorInjection);
-            unset($constructorInjection);
+            $component = $componentReflection->newInstanceArgs( $this->getComponents($constructorArguments) );
         }
 
         foreach ($setterMethods as $method) {
@@ -309,7 +288,7 @@ class Yadif_Container
                     throw new Yadif_Exception("Argument names for method injection '".$methodName."' have to an array.");
                 }
 
-                $injection = $this->getComponent($argsName);
+                $injection = $this->getComponents($argsName);
             }
 
             if ($componentReflection->getMethod($methodName)->isConstructor()) {
@@ -352,7 +331,7 @@ class Yadif_Container
      */
     public function __call($method, $args)
     {
-        if(!substr($method, 0, 3) !== "get") {
+        if(substr($method, 0, 3) !== "get") {
             throw new Yadif_Exception("Container __call only intercepts get[ComponetName]() like calls.");
         }
         $component = substr($method, 3);
