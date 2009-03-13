@@ -74,19 +74,183 @@ creates new objects on each call of getComponent().
 
 4. Setting non-object parameters
 ===============
-Non-object parameters are set in a PDO like binding syntax:
+There are two different syntaxes for non-object parameters.
+
+i.) Non-object parameters in a PDO like binding syntax:
 
 class Foo {
-    public function __construct($bar) { }
+    public function __construct($bar, $number) { }
 }
 
 $config = array(
     'Foo' => array(
         'class' => 'Foo',
-        'arguments' => ':bar',
+        'arguments' => array(':bar', ':number'),
     ),
 );
 $yadif = new Yadif_Container($config);
 $yadif->bindParam(':bar', 'BarName');
+$yadif->bindParam(':number', 1234);
 
 $foo = $yadif->getComponent('Foo');
+
+ii.) Non-existant strings in the argument list of methods or constructor
+
+$config = array(
+    'Foo' => array(
+        'class' => 'Foo',
+        'arguments' => array('BarName', 1234) // BarName is not registered as component
+    ),
+);
+
+$yadif = new Yadif_Container($config);
+$foo   = $yadif->getComponent('Foo');
+
+5. Creating entities or value objects through Container
+=========================================
+The creation of entity or value objects mostly requires lots of arguments passed to the constructor
+or setter methods, paired with dependencies for example in an Active Record example with the Database Connection.
+
+class UserActiveRecord
+{
+    public function setAdapter($db) { }
+
+    public function setName($name) { }
+
+    public function setEmail($email) { }
+
+    public function setId($id) { }
+}
+
+$config = array(
+    'DatabaseConn' => array(
+        'class' => 'PDO',
+        'arguments' => array('mysql://localhost', 'username', 'password'),
+        'scope' => 'singleton',
+    ),
+    'User' => array(
+        'class' => 'UserActiveRecord',
+        'arguments' => array(),
+        'methods' => array(
+            array('method' => 'setAdapter', 'arguments' => array('DatabaseConn'),
+            array('method' => 'setName',    'arguments' => ':name'),
+            array('method' => 'setEmail',   'arguments' => ':email'),
+            array('method' => 'setId',      'arguments' => ':id'),
+        ),
+        'scope' => 'prototype' // instantiate new object on each call of getComponent()
+    ),
+);
+
+$yadif = new Yadif_Container($config);
+$db    = $yadif->getComponent('DatabaseConn');
+$stmt = $db->query("SELECT * FROM Users");
+
+$users = array();
+while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $user = $yadif->bindParam(':name', $row['name'])
+                  ->bindParam(':id',   $row['id'])
+                  ->bindParam(':email', $row['email'])
+                  ->getComponent('User');
+}
+
+You could also use:
+
+$user = $yadif->bindParams(array(':name' => $row['name'], ':id' => $row['id'], ':email' => $row['email']))->getComponent('User');
+
+6. Zend Framework Front Controller Example
+=========================================
+
+$config = array(
+    'Request' => array(
+        'class' => 'Zend_Controller_Request_Http',
+    ),
+    'Response' => array(
+        'class' => 'Zend_Controller_Response_Http',
+    ),
+    'Router' => array(
+        'class' => 'Zend_Controller_Router_Rewrite',
+        'methods' => array(
+            array('method' => 'addConfig', 'arguments' => array('RouterConfig', 'routes'),
+        ),
+    ),
+    'RouterConfig' => array(
+        'class' => 'Zend_Config_Ini',
+        'arguments' => array('/var/www/application/config/routes.ini'),
+    ),
+    'FrontController' => array(
+        'class' => 'Zend_Controller_Front',
+        'arguments' => array(),
+        'methods' => array(
+            // Inject Request, Response and Router
+            array('method' => 'setRequest',  'arguments' => array('Request')),
+            array('method' => 'setResponse', 'arguments' => array('Response')),
+            array('method' => 'setRouter',   'arguments' => array('Router')),
+
+            // Inject Plugins
+            array('method' => 'registerPlugin', 'arguments' => array('ControllerPluginAccessControl'),
+            array('method' => 'registerPlugin', 'arguments' => array('ControllerPluginLogging'),
+
+            // Inject Parameters which will be used throughout controllers
+            array('method' => 'setParam', 'arguments' => array('db', 'DatabaseConn'),
+            array('method' => 'setParam', 'arguments' => array('logger', 'Logger'),
+
+            // Set Controller Directory
+            array('method' => 'setControllerDirectory', 'arguments' => array('/var/www/application/controllers/'),
+        ),
+    ),
+    'ControllerPluginAccessControl' => array('class' => 'ControllerPluginAccessControlImplementation'),
+    'ControllerPluginLogging'       => array(
+        'class' => 'ControllerPluginAccessControlLogging'
+        'arguments' => array('Logger'),
+    ),
+    'Logger' => array(
+        'class' => 'Zend_Log',
+        'methods' => array(
+            array('method' => 'addWriter', array('LoggerWriter')
+        ),
+    ),
+    'LoggerWriter' => array(
+        'class' => 'Zend_Log_Writer_Stream',
+        'arguments' => array('/var/log/myapplication/errors.log'),
+    ),
+    'DatabaseConn' => array(
+        'class' => 'Zend_Db_Adapter_Mysql',
+        'arguments' => array( 'pdo_mysql', array(..) ),
+    ),
+);
+
+$yadif = new Yadif_Container($config);
+$front = $yadif->getComponent('FrontController');
+$front->dispatch();
+
+Will do the following internally:
+
+$front = new Zend_Controller_Front(); // sadly not working because singleton
+
+$request = new Zend_Controller_Request_Http();
+$front->setRequest($request);
+
+$response = new Zend_Controller_Response_Http();
+$front->setResponse($response);
+
+$routerConfig = new Zend_Config('/var/www/application/config/routes.ini');
+$router = new Zend_Controller_Router_Rewrite();
+$router->addConfig($routerConfig);
+$front->addRouter($router);
+
+$aclPlugin = new ControllerPluginAccessControlImplementation();
+$front->registerPlugin($aclPlugin);
+
+$logger = new Zend_Log();
+$writer = new Zend_Log_Writer_Stream('/var/log/myapplication/errors.log');
+$logger->addWriter($writer);
+$loggerPlugin = new ControllerPluginAccessControlLogging($logger);
+$front->registerPlugin($loggerPlugin);
+
+$db = new Zend_Db_Adapter_Mysql('pdo_mysql', array(..));
+$front->setParam('db', $db);
+
+// $logger already exists and is singleton
+$front->setParam('logger', $logger);
+
+$front->setControllerDirectory('/var/www/application/controllers/');

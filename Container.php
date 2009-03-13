@@ -32,16 +32,6 @@ class Yadif_Container
     const SCOPE_PROTOTYPE = "prototype";
 
 	/**
-	 * Char we prefix string arguments with to identify as strings
-	 */
-	const STRING_IDENTIFIER = '"';
-
-	/**
-	 * Char to preserve index of identical method calls
-	 */
-	const METHOD_TRIM_CHAR = '#';
-
-	/**
 	 * Class index key of component $config
 	 */
 	const CONFIG_CLASS = 'class';
@@ -250,16 +240,6 @@ class Yadif_Container
 	}
 
 	/**
-	 * Return string minus identifier
-	 * @param string $string
-	 * @return string
-	 */
-	protected function _parseString($string)
-	{
-		return ltrim($string, self::STRING_IDENTIFIER);
-	}
-
-	/**
 	 * Get back a fully assembled component based on the configuration provided beforehand
 	 *
 	 * @param mixed $name The name of the component
@@ -278,21 +258,16 @@ class Yadif_Container
             throw new Yadif_Exception('$name not string, is ' . gettype($name));
         }
 
-		// if is string
-		if($name[0] === self::STRING_IDENTIFIER) {
-            return $this->_parseString($name);
-        }
-
 		// if we're trying to "getParameter" (see the loop below)
 		if (array_key_exists($name, $this->_parameters)) {
 			return $this->getParam($name);
         }
 
-		if (!array_key_exists($name, $this->_container)) {
-			throw new Yadif_Exception("'$name' not in " . '$this->_container or $this->_parameters');
+		if(!is_string($name) || !array_key_exists($name, $this->_container)) {
+			return $name;
         }
 
-		$component = $this->_container[ $name ];
+		$component = $this->_container[$name];
         $scope = $component[self::CONFIG_SCOPE];
         if($scope == self::SCOPE_SINGLETON && isset($this->_singletons[$name])) {
             return $this->_singletons[$name];
