@@ -21,6 +21,8 @@ require_once 'Exception.php';
  */
 class Yadif_Container
 {
+    const CHAR_CONFIG_VALUE = '%';
+
     /**
      * Identifier for singleton scope
      */
@@ -83,22 +85,43 @@ class Yadif_Container
     protected $_singletons = array();
 
     /**
+     * Config
+     *
+     * @var Zend_Config
+     */
+    protected $_config = null;
+
+    /**
      * Construct Dependency Injection Container
      *
-     * @param Zend_Config|array $config
+     * @param Zend_Config|array $components
+     * @param Zend_Config       $config
      */
-	public function __construct($config = array())
+	public function __construct($components = array(), Zend_Config $config=null)
 	{
-        if($config instanceof Zend_Config) {
-            $config = $config->toArray();
+        if($components instanceof Zend_Config) {
+            $components = $components->toArray();
         }
 
-		if (isset($config) && is_array($config)) {
-			foreach ($config as $componentName => $componentConfig) {
+		if (isset($components) && is_array($components)) {
+			foreach ($components as $componentName => $componentConfig) {
 				$this->addComponent( $componentName, $componentConfig );
 			}
 		}
+        $this->_config = $config;
 	}
+
+    /**
+     * Set Config object
+     *
+     * @param  Zend_Config $config
+     * @return Yadif_Container
+     */
+    public function setConfig(Zend_Config $config)
+    {
+        $this->_config = $config;
+        return $this;
+    }
 
 	/**
 	 * Getter method for internal array of component configurations
@@ -248,12 +271,11 @@ class Yadif_Container
             return $name;
         }
 
-		// if we're trying to "getParameter" (see the loop below)
-		if (array_key_exists($name, $this->_parameters)) {
+        if(substr($name, 0, 1) == self::CHAR_CONFIG_VALUE && substr($name, -1) == self::CHAR_CONFIG_VALUE) {
+            return $this->getConfigValue($name);
+        } else if (array_key_exists($name, $this->_parameters)) {
 			return $this->getParam($name);
-        }
-
-		if(!array_key_exists($name, $this->_container)) {
+        } else if(!array_key_exists($name, $this->_container)) {
 			return $name;
         }
 
@@ -340,5 +362,27 @@ class Yadif_Container
         }
         $component = substr($method, 3);
         return $this->getComponent($component);
+    }
+
+    /**
+     * Given an accessor specification %config.foo.bar% traverse the config and return value.
+     *
+     * @param  string $accessor
+     * @return mixed
+     */
+    protected function getConfigValue($accessor)
+    {
+        if($this->_config === null) {
+            throw new Yadif_Exception("A config value '".$accessor."' is required but no config was given!");
+        }
+
+        $accessor = substr($accessor, 1, strlen($accessor)-2);
+
+        $parts = explode(".", $accessor);
+        $current = $this->_config;
+        for($i = 0; $i < count($parts); $i++) {
+            $current = $current->$parts[$i];
+        }
+        return $current;
     }
 }

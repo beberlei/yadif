@@ -138,4 +138,58 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
         $yadif = new Yadif_Container($config);
         $this->assertTrue($yadif->getComponent('YadifBaz') instanceof YadifBaz);
     }
+
+    public function testPassConfigObjectAndRequireInformationFromItOnInstantiation()
+    {
+        $components = array(
+            'YadifBaz' => array(
+                'class' => 'YadifBaz',
+                'methods' => array(
+                    array('method' => 'setA', 'arguments' => array('%foo.bar%'))
+                ),
+            ),
+        );
+        $config = new Zend_Config(array('foo' => array('bar' => 'baz')));
+
+
+        $yadif = new Yadif_Container($components, $config);
+        $baz   = $yadif->getComponent('YadifBaz');
+        $this->assertEquals("baz", $baz->a);
+    }
+
+    public function testPassConfigObjectAndRequireInformationFromItOnSetConfig()
+    {
+        $components = array(
+            'YadifBaz' => array(
+                'class' => 'YadifBaz',
+                'methods' => array(
+                    array('method' => 'setA', 'arguments' => array('%foo.bar%'))
+                ),
+            ),
+        );
+        $config = new Zend_Config(array('foo' => array('bar' => 'baz')));
+
+
+        $yadif = new Yadif_Container($components);
+        $yadif->setConfig($config);
+        $baz   = $yadif->getComponent('YadifBaz');
+        $this->assertEquals("baz", $baz->a);
+    }
+
+    public function testRequireInformationFromConfigButGiveNonThrowsException()
+    {
+        $this->setExpectedException("Yadif_Exception");
+
+        $components = array(
+            'YadifBaz' => array(
+                'class' => 'YadifBaz',
+                'methods' => array(
+                    array('method' => 'setA', 'arguments' => array('%foo.bar%'))
+                ),
+            ),
+        );
+
+        $yadif = new Yadif_Container($components);
+        $baz   = $yadif->getComponent('YadifBaz');
+    }
 }
