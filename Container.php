@@ -297,7 +297,7 @@ class Yadif_Container
             if(!is_callable($component[self::CONFIG_FACTORY])) {
                 throw new Yadif_Exception("No valid callback given for the factory method of '".$name."'.");
             }
-            $component = call_user_func_array($component[self::CONFIG_FACTORY], $constructorArguments);
+            $component = call_user_func_array($component[self::CONFIG_FACTORY], $this->getComponents($constructorArguments) );
         } else if(empty($constructorArguments)) { // if no instructions
 			$component = $componentReflection->newInstance();
         } else {
