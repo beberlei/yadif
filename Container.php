@@ -18,6 +18,9 @@ require_once 'Exception.php';
  *
  * @category   Yadif
  * @copyright  Copyright (c) 2008 Thomas McKelvey
+ * @copyright  Copyright (c) 2009 Benjamin Eberlei
+ * @author     Thomas McKelvey (http://github.com/tsmckelvey/yadif/tree/master)
+ * @author     Benjamin Eberlei (http://github.com/beberlei/yadif/tree/master)
  */
 class Yadif_Container
 {
