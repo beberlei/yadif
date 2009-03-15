@@ -47,6 +47,11 @@ class Yadif_Container
 	const CONFIG_ARGUMENTS = 'arguments';
 
     /**
+     * Parameters
+     */
+    const CONFIG_PARAMETERS = 'params';
+
+    /**
      * Singleton index key of component $config
      */
     const CONFIG_SCOPE = 'scope';
@@ -219,6 +224,10 @@ class Yadif_Container
 
             if (!isset($config[self::CONFIG_ARGUMENTS]) || !is_array($config[self::CONFIG_ARGUMENTS])) {
                 $config[ self::CONFIG_ARGUMENTS ] = array();
+            }
+
+            if(!isset($config[self::CONFIG_PARAMETERS])) {
+                $config[self::CONFIG_PARAMETERS] = array();
             }
 
             // if class is set and doesn't exist

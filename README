@@ -309,3 +309,5 @@ $baz = $yadif->getComponent("YadifBaz");
 5. Session Scope: Add a third parameter to the Container which accepts a Zend_Session_Namespace. All objects inside this
    namespace are added to the list of instances where the session key corresponds to the Component Name. Instantiated objects
    that are scoped "session" are saved inside the session, not just the container.
+
+6. Currently no loading of the Classes through Zend_Loader::loadClass() - How to handle this?
