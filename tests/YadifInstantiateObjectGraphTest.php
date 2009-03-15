@@ -181,4 +181,23 @@ class YadifInstantiateObjectGraphTest extends PHPUnit_Framework_TestCase
         $yadif = new Yadif_Container($config);
         $foo = $yadif->getComponent('YadifFoo');
     }
+
+    public function testSpecifyingArgumentsComponentsToCallbackFactoryRetrievesThroughContainer()
+    {
+        YadifFactory::$factoryCalled = false;
+        $config = array(
+            'YadifBaz' => array('class' => 'YadifBaz'),
+            'YadifFoo' => array(
+                'class'     => 'YadifFoo',
+                'factory'   => array('YadifFactory', 'createFoo'),
+                'arguments' => array('YadifBaz', 'YadifBaz'),
+            ),
+        );
+
+        $yadif = new Yadif_Container($config);
+        $foo = $yadif->getComponent('YadifFoo');
+
+        $this->assertTrue($foo->a instanceof YadifBaz);
+        $this->assertTrue($foo->b instanceof YadifBaz);
+    }
 }

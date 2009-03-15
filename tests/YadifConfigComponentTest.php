@@ -192,4 +192,35 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
         $yadif = new Yadif_Container($components);
         $baz   = $yadif->getComponent('YadifBaz');
     }
+
+    public function testMergeContainerMergesConfigOfBothIfNonWriteable()
+    {
+        $c1 = new Yadif_Container(array(), new Zend_Config(array("foo" => "bar")));
+        $c2 = new Yadif_Container(array(), new Zend_Config(array("bar" => "baz")));
+
+        $c1->merge($c2);
+
+        $this->assertEquals(array("foo" => "bar", "bar" => "baz"), $c1->getConfig()->toArray());
+    }
+
+    public function testMergeContainerMergesConfigOfBothIfWriteable()
+    {
+        $c1 = new Yadif_Container(array(), new Zend_Config(array("foo" => "bar"), true));
+        $c2 = new Yadif_Container(array(), new Zend_Config(array("bar" => "baz")));
+
+        $c1->merge($c2);
+
+        $this->assertEquals(array("foo" => "bar", "bar" => "baz"), $c1->getConfig()->toArray());
+    }
+
+    public function testMergeContainerUsesConfigOfOtherIfOwnHasNone()
+    {
+        $config = new Zend_Config(array("bar" => "baz"));
+        $c1 = new Yadif_Container(array());
+        $c2 = new Yadif_Container(array(), $config);
+
+        $c1->merge($c2);
+
+        $this->assertEquals($config, $c1->getConfig());
+    }
 }
