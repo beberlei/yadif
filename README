@@ -170,7 +170,7 @@ $config = array(
     'Router' => array(
         'class' => 'Zend_Controller_Router_Rewrite',
         'methods' => array(
-            array('method' => 'addConfig', 'arguments' => array('RouterConfig', 'routes'),
+            array('method' => 'addConfig', 'arguments' => array('RouterConfig', 'routes')),
         ),
     ),
     'RouterConfig' => array(
@@ -187,27 +187,27 @@ $config = array(
             array('method' => 'setRouter',   'arguments' => array('Router')),
 
             // Inject Plugins
-            array('method' => 'registerPlugin', 'arguments' => array('ControllerPluginAccessControl'),
-            array('method' => 'registerPlugin', 'arguments' => array('ControllerPluginLogging'),
+            array('method' => 'registerPlugin', 'arguments' => array('ControllerPluginAccessControl')),
+            array('method' => 'registerPlugin', 'arguments' => array('ControllerPluginLogging')),
 
             // Inject Parameters which will be used throughout controllers
-            array('method' => 'setParam', 'arguments' => array('db', 'DatabaseConn'),
-            array('method' => 'setParam', 'arguments' => array('logger', 'Logger'),
+            array('method' => 'setParam', 'arguments' => array('db', 'DatabaseConn')),
+            array('method' => 'setParam', 'arguments' => array('logger', 'Logger')),
 
             // Set Controller Directory
-            array('method' => 'setControllerDirectory', 'arguments' => array('/var/www/application/controllers/'),
+            array('method' => 'setControllerDirectory', 'arguments' => array('/var/www/application/controllers/')),
         ),
-        'factory' => array('Zend_Controller_Front', 'getInstance'), // Static Factory Method for this class instead of new()
+        'factory' => array('Zend_Controller_Front', 'getInstance'),
     ),
     'ControllerPluginAccessControl' => array('class' => 'ControllerPluginAccessControlImplementation'),
     'ControllerPluginLogging'       => array(
-        'class' => 'ControllerPluginAccessControlLogging'
+        'class' => 'ControllerPluginAccessControlLogging',
         'arguments' => array('Logger'),
     ),
     'Logger' => array(
         'class' => 'Zend_Log',
         'methods' => array(
-            array('method' => 'addWriter', array('LoggerWriter')
+            array('method' => 'addWriter', 'arguments' => array('LoggerWriter')),
         ),
     ),
     'LoggerWriter' => array(
@@ -216,7 +216,7 @@ $config = array(
     ),
     'DatabaseConn' => array(
         'class' => 'Zend_Db_Adapter_Mysql',
-        'arguments' => array( 'pdo_mysql', array(..) ),
+        'arguments' => array( '%database.config%'),
     ),
 );
 
@@ -278,3 +278,16 @@ $config = new Zend_Config(array('foo' => array('bar' => 'baz')));
 
 $yadif = new Yadif_Container($components, $config);
 $baz = $yadif->getComponent("YadifBaz");
+
+8. TODOS and Open Questions
+======================================
+1. String and Component Name Ambigoutiy - How to solve it?
+2. Components Nested in Arrays, should they be instantiated through the Container? Currently they are not:
+    $foo = new Foo(array('bar' => new Bar())); <- not possible
+3. Calling static registries for example not possible:
+    Zend_Registry::set('foo', $foo);
+4. How to solve references to the container itsself? Example: The Front Controller is using a container to instantiate
+   the main part of the application and then goes on in the Dispatcher to use another container to instantiate the controller.
+   How should back-references to containers be injected into an object tree?
+
+   $container = $container->getComponent('ThisContainer'); <- magic key?
