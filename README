@@ -335,7 +335,8 @@ $baz = $yadif->getComponent("YadifBaz");
 8. TODOS and Open Questions
 ======================================
 1. String and Component Name Ambigoutiy - How to solve it?
-    Solved! Allow non-object parameters only through 'arguments' key of configuration and bound via ':name' syntax
+    Solved! Allow non-object parameters only through 'arguments' key of configuration and bound via ':name' syntax.
+    See point 4 with more details on this topic.
 
 2. Components Nested in Arrays, should they be instantiated through the Container? Currently they are not:
     $foo = new Foo(array('bar' => new Bar())); <- not possible
@@ -344,6 +345,7 @@ $baz = $yadif->getComponent("YadifBaz");
 
 3. Calling static registries for example not possible:
     Zend_Registry::set('foo', $foo);
+    Zend_Controller_Action_HelperStack::addHelper($helper);
 
 4. How to solve references to the container itsself? Example: The Front Controller is using a container to instantiate
    the main part of the application and then goes on in the Dispatcher to use another container to instantiate the controller.
@@ -356,3 +358,11 @@ $baz = $yadif->getComponent("YadifBaz");
    that are scoped "session" are saved inside the session, not just the container.
 
 6. Currently no loading of the Classes through Zend_Loader::loadClass() - How to handle this?
+
+7. Known Contexts
+    There are known contexts in which a container already knows he has to have implementations of x,y,z
+    different components. For example a Zend_Front_Controller at least needs request, response, router.
+
+    How should the configuration of known contexts be handled. Maybe a class "MyContext extends Yadif_Container"
+    but in this case the addComponent() functionality has to be extended to allow for a convention over configuration
+    compatible merging of existing with added component definitions.
