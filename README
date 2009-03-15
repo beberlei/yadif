@@ -335,6 +335,7 @@ $baz = $yadif->getComponent("YadifBaz");
 8. TODOS and Open Questions
 ======================================
 1. String and Component Name Ambigoutiy - How to solve it?
+    Solved! Allow non-object parameters only through 'arguments' key of configuration and bound via ':name' syntax
 
 2. Components Nested in Arrays, should they be instantiated through the Container? Currently they are not:
     $foo = new Foo(array('bar' => new Bar())); <- not possible
