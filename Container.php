@@ -81,11 +81,11 @@ class Yadif_Container
 	protected $_parameters = array();
 
     /**
-     * singletons
+     * All managed instances inside this container which are not Scoped "Prototype"
      *
      * @var array
      */
-    protected $_singletons = array();
+    protected $_instances = array();
 
     /**
      * Config
@@ -145,6 +145,59 @@ class Yadif_Container
 	{
 		return $this->_parameters;
 	}
+
+    /**
+     * Get currently managed instances of the container.
+     *
+     * In its current implementations only the singleton scoped objects are returned,
+     * but in an implementation with additional session scope it is necessary to return
+     * also those from this function.
+     *
+     * @return array
+     */
+    public function getInstances()
+    {
+        return $this->_instances;
+    }
+
+    /**
+     * Get Config inside this Container
+     *
+     * @return Zend_Config|null
+     */
+    public function getConfig()
+    {
+        return $this->_config;
+    }
+
+    /**
+     * Merge two Containers
+     *
+     * @todo   Handle duplicates, currently array_merge overwrites them
+     * @param  Yadif_Container $container
+     * @return Yadif_Container
+     */
+    public function merge(Yadif_Container $container)
+    {
+        $this->_container = array_merge($this->_container, $container->getContainer());
+        $this->_instances = array_merge($this->_instances, $container->getInstances());
+
+        $otherConfig = $container->getConfig();
+        $ownConfig   = $this->getConfig();
+        if($otherConfig instanceof Zend_Config) {
+            if($ownConfig == null) {
+                $this->setConfig($otherConfig);
+            } else {
+                if($ownConfig->readOnly() == true) {
+                    $this->setConfig(new Zend_Config(array_merge($ownConfig->toArray(), $otherConfig->toArray())));
+                } else {
+                    $this->setConfig($ownConfig->merge($otherConfig));
+                }
+            }
+        }
+
+        return $this;
+    }
 	
 	/**
 	 * Add a component to the container
@@ -158,10 +211,7 @@ class Yadif_Container
 	public function addComponent($name = null, array $config = null)
 	{
 		if ($name instanceof Yadif_Container) { // if Yadif_Container
-			$foreignContainer = $name->getContainer();
-
-			// merge containers, @TODO: duplicates
-			$this->_container = array_merge($this->_container, $foreignContainer);
+            $this->merge($name);
 		} elseif(is_string($name)) {
             if (!is_array($config) || !isset($config[self::CONFIG_CLASS])) { // assume name is the class name
                 $config[self::CONFIG_CLASS] = $name;
@@ -284,8 +334,8 @@ class Yadif_Container
 
 		$component = $this->_container[$name];
         $scope = $component[self::CONFIG_SCOPE];
-        if($scope == self::SCOPE_SINGLETON && isset($this->_singletons[$name])) {
-            return $this->_singletons[$name];
+        if(isset($this->_instances[$name])) {
+            return $this->_instances[$name];
         }
 
 		$componentReflection = new ReflectionClass($component[ self::CONFIG_CLASS ]);
@@ -331,8 +381,8 @@ class Yadif_Container
             }
         }
 
-        if($scope == self::SCOPE_SINGLETON) {
-            $this->_singletons[$name] = $component;
+        if($scope !== self::SCOPE_PROTOTYPE) {
+            $this->_instances[$name] = $component;
         }
 
 		return $component;
