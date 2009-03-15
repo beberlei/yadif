@@ -15,6 +15,8 @@ Table of Contents
 6. Zend Framework Front Controller Example
 7. Zend_Config Support
 8. TODOS and Open Questions
+9. Instantiation with Factory methods
+10. Injecting Container Reference or Clones
 
 1. Basic Syntax
 ================
@@ -366,3 +368,24 @@ $baz = $yadif->getComponent("YadifBaz");
     How should the configuration of known contexts be handled. Maybe a class "MyContext extends Yadif_Container"
     but in this case the addComponent() functionality has to be extended to allow for a convention over configuration
     compatible merging of existing with added component definitions.
+
+9. Instantiation with Factory methods
+=====================================
+Sometimes you have to create certain objects through a factory method or a singleton
+creation facility. You can do that with a specific factory key:
+
+$options = array(
+    'Foo' => array(
+        'class' => 'Foo',
+        'factory' => array('FooFactory', 'create'),
+    ),
+);
+
+The factory key has to hold a valid PHP callback. Then not the constructor, but
+the factory method is called to create the object. No check is performed if the object
+is created successfully.
+
+10. Injecting Container Reference or Clones
+===========================================
+Using 'ThisContainer' or 'CloneContainer' creates a reference to the current container
+or clones the container and injects it.
