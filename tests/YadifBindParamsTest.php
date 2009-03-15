@@ -84,4 +84,39 @@ class YadifBindParamsTest extends PHPUnit_Framework_TestCase
         $yadif = new Yadif_Container();
         $yadif->bindParams("notArray");
     }
+
+    public function testBindConstructorParamInConfigurationThroughParametersKey()
+    {
+        $config = array(
+            'YadifBar' => array(
+                'class'     => 'YadifBar',
+                'arguments' => array(':foo'),
+                'params' => array(':foo' => 'bar'),
+            )
+        );
+        $yadif = new Yadif_Container($config);
+
+        $component = $yadif->getComponent("YadifBar");
+        $this->assertEquals("bar", $component->a);
+    }
+
+    public function testBindMethodParamInConfigurationThroughParametersKey()
+    {
+        $config = array(
+            'YadifBaz' => array(
+                'class'     => 'YadifBaz',
+                'methods' => array(
+                    array(
+                        'method' => 'setA',
+                        'arguments' => array(':foo'),
+                        'params' => array(':foo' => 'bar'),
+                    ),
+                ),
+            )
+        );
+        $yadif = new Yadif_Container($config);
+
+        $component = $yadif->getComponent("YadifBaz");
+        $this->assertEquals("bar", $component->a);
+    }
 }

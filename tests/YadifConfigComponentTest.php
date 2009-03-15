@@ -223,4 +223,17 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($config, $c1->getConfig());
     }
+
+    public function testConfigMethodsOfComponentNotAsArrayThrowsException()
+    {
+        $this->setExpectedException("Yadif_Exception");
+
+        $config = array(
+            'foo' => array(
+                'class' => 'YadifFoo',
+                'methods' => 'string',
+            ),
+        );
+        $yadif = new Yadif_Container($config);
+    }
 }

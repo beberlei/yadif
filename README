@@ -339,6 +339,8 @@ $baz = $yadif->getComponent("YadifBaz");
 
 2. Components Nested in Arrays, should they be instantiated through the Container? Currently they are not:
     $foo = new Foo(array('bar' => new Bar())); <- not possible
+    Solved! Through introduction of the injectParameters() method it is possible to implement this through recursion and
+    even support both object and non-object parameters in the nested array.
 
 3. Calling static registries for example not possible:
     Zend_Registry::set('foo', $foo);

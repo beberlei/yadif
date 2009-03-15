@@ -202,4 +202,40 @@ class YadifInstantiateObjectGraphTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($foo->a instanceof YadifBaz);
         $this->assertTrue($foo->b instanceof YadifBaz);
     }
+
+    public function testInstantiatingNestedArrayMixedParamAndObject()
+    {
+        $config = array(
+            'YadifBaz' => array('class' => 'YadifBaz'),
+            'YadifFoo' => array(
+                'class' => 'YadifFoo',
+                'arguments' => array(array('object' => 'YadifBaz', 'param' => ':foo'), 'YadifBaz'),
+                'params' => array(':foo' => 'aloah!'),
+            )
+        );
+
+        $yadif = new Yadif_Container($config);
+        $foo = $yadif->getComponent('YadifFoo');
+
+        $this->assertEquals($foo->a['object'], $foo->b);
+        $this->assertEquals('aloah!', $foo->a['param']);
+    }
+
+    public function testGetMultipleComponentsAsArray()
+    {
+        $config = array(
+            'YadifBaz' => array('class' => 'YadifBaz'),
+            'YadifFoo' => array(
+                'class' => 'YadifFoo',
+                'arguments' => array(':foo', 'YadifBaz'),
+                'params' => array(':foo' => 'aloah!'),
+            )
+        );
+
+        $yadif = new Yadif_Container($config);
+        $components = $yadif->getComponents(array('foo' => 'YadifFoo', 'baz' => 'YadifBaz'));
+
+        $this->assertEquals('aloah!', $components['foo']->a);
+        $this->assertEquals($components['foo']->b, $components['baz']);
+    }
 }

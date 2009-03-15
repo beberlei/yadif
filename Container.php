@@ -353,16 +353,18 @@ class Yadif_Container
     {
         $injection = array();
         foreach($arguments AS $k => $argument) {
-            if(substr($argument, 0, 1) == self::CHAR_CONFIG_VALUE && substr($argument, -1) == self::CHAR_CONFIG_VALUE) {
+            if(is_array($argument)) {
+                $value = $this->injectParameters($argument, $component);
+            } elseif(substr($argument, 0, 1) == self::CHAR_CONFIG_VALUE && substr($argument, -1) == self::CHAR_CONFIG_VALUE) {
                 $value = $this->getConfigValue($argument);
             } elseif(substr($argument, 0, 1) == self::CHAR_ARGUMENT) {
                 if(isset($params[$argument])) {
-                    $value =  $params[$arguments];
+                    $value =  $params[$argument];
                 } else {
                     $value =  $this->getParam($argument, $component);
                 }
             } else {
-                $value =  $this->getComponent($argument);
+                $value = $this->getComponent($argument);
             }
             $injection[$k] = $value;
         }
