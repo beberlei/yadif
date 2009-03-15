@@ -108,16 +108,8 @@ class Yadif_Container
      */
 	public function __construct($components = array(), Zend_Config $config=null)
 	{
-        if($components instanceof Zend_Config) {
-            $components = $components->toArray();
-        }
-
-		if (isset($components) && is_array($components)) {
-			foreach ($components as $componentName => $componentConfig) {
-				$this->addComponent( $componentName, $componentConfig );
-			}
-		}
-        $this->_config = $config;
+        $this->addComponents($components);
+        $this->setConfig($config);
 	}
 
     /**
@@ -126,7 +118,7 @@ class Yadif_Container
      * @param  Zend_Config $config
      * @return Yadif_Container
      */
-    public function setConfig(Zend_Config $config)
+    public function setConfig(Zend_Config $config=null)
     {
         $this->_config = $config;
         return $this;
@@ -203,6 +195,25 @@ class Yadif_Container
         }
 
         return $this;
+    }
+
+    /**
+     * Add several components to the container via a config.
+     *
+     * @param array|Zend_Config $components
+     * @return Yadif_Container
+     */
+    public function addComponents($components)
+    {
+        if($components instanceof Zend_Config) {
+            $components = $components->toArray();
+        }
+
+		if (isset($components) && is_array($components)) {
+			foreach ($components as $componentName => $componentConfig) {
+				$this->addComponent( $componentName, $componentConfig );
+			}
+		}
     }
 	
 	/**
@@ -382,7 +393,11 @@ class Yadif_Container
 		if (!is_string($name)) {
             return $name;
         }
-        if(!array_key_exists($name, $this->_container)) {
+        if($name === "ThisContainer") {
+            return $this;
+        } elseif($name === "CloneContainer") {
+            return clone $this;
+        } elseif(!array_key_exists($name, $this->_container)) {
 			throw new Yadif_Exception("Component '".$name."' does not exist in container.");
         }
 
