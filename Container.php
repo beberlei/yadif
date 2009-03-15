@@ -421,11 +421,7 @@ class Yadif_Container
             if ($componentReflection->getMethod($methodName)->isConstructor()) {
                 throw new Yadif_Exception("Cannot use constructor in 'methods' setter injection list. Use 'arguments' key instead.");
             } else {
-                if(count($injection) == 0) {
-                    $componentReflection->getMethod($methodName)->invoke($component);
-                } else {
-                    $componentReflection->getMethod($methodName)->invokeArgs($component, $injection);
-                }
+                call_user_func_array(array($component, $methodName), $injection);
             }
         }
 
