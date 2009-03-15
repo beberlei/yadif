@@ -52,12 +52,14 @@ class YadifBindParamsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("bar", $yadif->getParam(":foo"));
     }
 
-    public function testGetComponentRetrieveBoundParam()
+    public function testGetComponentRetrieveBoundParamThrowsException()
     {
+        $this->setExpectedException("Yadif_Exception");
+
         $yadif = new Yadif_Container();
         $yadif->bindParam(":foo", "bar");
 
-        $this->assertEquals("bar", $yadif->getComponent(":foo"));
+        $yadif->getComponent(":foo");
     }
 
     public function testGetComponentWithBoundParam()

@@ -92,10 +92,12 @@ class YadifInstantiateObjectGraphTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1234, $yadif->getComponent(1234));
     }
 
-    public function testGetNotRegisteredComponentReturnsTheStringAsStringArgument()
+    public function testGetNotRegisteredComponentThrowsException()
     {
+        $this->setExpectedException("Yadif_Exception");
+
         $yadif = new Yadif_Container();
-        $this->assertEquals("asdf", $yadif->getComponent("asdf"));
+        $yadif->getComponent("asdf");
     }
 
     public function testCallMethodWithoutArguments()

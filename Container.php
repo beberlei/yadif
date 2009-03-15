@@ -25,6 +25,7 @@ require_once 'Exception.php';
 class Yadif_Container
 {
     const CHAR_CONFIG_VALUE = '%';
+    const CHAR_ARGUMENT     = ':';
 
     /**
      * Identifier for singleton scope
@@ -242,9 +243,27 @@ class Yadif_Container
 
             if(!isset($config[self::CONFIG_METHODS])) {
                 $config[self::CONFIG_METHODS] = array();
+            } elseif(!is_array($config[self::CONFIG_METHODS])) {
+                throw new Yadif_Exception("Methods of component '".$name."' are not in array format.");
+            } else {
+                foreach($config[self::CONFIG_METHODS] AS $k => $method) {
+                    if(!isset($method[self::CONFIG_METHOD])) {
+                        throw new Yadif_Exception("No method name was set for injection via method.");
+                    }
+                    if(!isset($method[self::CONFIG_PARAMETERS])) {
+                        $method[self::CONFIG_PARAMETERS] = array();
+                    }
+                    if(!isset($method[self::CONFIG_ARGUMENTS])) {
+                        $method[self::CONFIG_ARGUMENTS] = array();
+                    } elseif(!is_array($method[self::CONFIG_ARGUMENTS])) {
+                        throw new Yadif_Exception("Arguments of method '".$method[self::CONFIG_METHOD]."' in component ".$name." are not given as an array.");
+                    }
+                    
+                    $config[self::CONFIG_METHODS][$k] = $method;
+                }
             }
 
-            $this->_container[ $name ] = $config;
+            $this->_container[$name] = $config;
         } else {
             throw new Yadif_Exception('$string not string|Yadif_Container, is ' . gettype($name));
         }
@@ -265,7 +284,7 @@ class Yadif_Container
             throw new Yadif_Exception('$param not string, is ' . gettype($param));
         }
 
-		if ($param{0} != ':') {
+		if ($param[0] != ':') {
 			throw new Yadif_Exception($param . ' must start with a colon (:)');
         }
 
@@ -277,16 +296,25 @@ class Yadif_Container
 	/**
 	 * Retrieve a parameter by name
 	 *
-	 * @param mixed $param Retrieve named parameter
+	 * @param  mixed $param Retrieve named parameter
+     * @param  string $component
+     * @param  string $method
 	 * @return mixed
 	 */
-	public function getParam($param)
+	public function getParam($param, $component=null)
 	{
-		if (isset($this->_parameters[$param])) {
-			return $this->_parameters[$param];
-		}
+        if(isset($this->_container[$component])) {
+            $component = $this->_container[$component];
+            if(isset($component[self::CONFIG_PARAMETERS][$param])) {
+                return $component[self::CONFIG_PARAMETERS][$param];
+            }
+        }
 
-		return null;
+        if(isset($this->_parameters[$param])) {
+			return $this->_parameters[$param];
+		} else {
+            return null;
+        }
 	}
 
 	/**
@@ -321,6 +349,26 @@ class Yadif_Container
         return $components;
     }
 
+    protected function injectParameters($arguments, $component, array $params=array())
+    {
+        $injection = array();
+        foreach($arguments AS $k => $argument) {
+            if(substr($argument, 0, 1) == self::CHAR_CONFIG_VALUE && substr($argument, -1) == self::CHAR_CONFIG_VALUE) {
+                $value = $this->getConfigValue($argument);
+            } elseif(substr($argument, 0, 1) == self::CHAR_ARGUMENT) {
+                if(isset($params[$argument])) {
+                    $value =  $params[$arguments];
+                } else {
+                    $value =  $this->getParam($argument, $component);
+                }
+            } else {
+                $value =  $this->getComponent($argument);
+            }
+            $injection[$k] = $value;
+        }
+        return $injection;
+    }
+
 	/**
 	 * Get back a fully assembled component based on the configuration provided beforehand
 	 *
@@ -332,13 +380,8 @@ class Yadif_Container
 		if (!is_string($name)) {
             return $name;
         }
-
-        if(substr($name, 0, 1) == self::CHAR_CONFIG_VALUE && substr($name, -1) == self::CHAR_CONFIG_VALUE) {
-            return $this->getConfigValue($name);
-        } else if (array_key_exists($name, $this->_parameters)) {
-			return $this->getParam($name);
-        } else if(!array_key_exists($name, $this->_container)) {
-			return $name;
+        if(!array_key_exists($name, $this->_container)) {
+			throw new Yadif_Exception("Component '".$name."' does not exist in container.");
         }
 
 		$component = $this->_container[$name];
@@ -356,27 +399,21 @@ class Yadif_Container
             if(!is_callable($component[self::CONFIG_FACTORY])) {
                 throw new Yadif_Exception("No valid callback given for the factory method of '".$name."'.");
             }
-            $component = call_user_func_array($component[self::CONFIG_FACTORY], $this->getComponents($constructorArguments) );
+            $component = call_user_func_array($component[self::CONFIG_FACTORY], $this->injectParameters($constructorArguments, $name));
         } else if(empty($constructorArguments)) { // if no instructions
 			$component = $componentReflection->newInstance();
         } else {
-            $component = $componentReflection->newInstanceArgs( $this->getComponents($constructorArguments) );
+            $component = $componentReflection->newInstanceArgs($this->injectParameters($constructorArguments, $name));
         }
 
         foreach ($setterMethods as $method) {
-            if(!isset($method[self::CONFIG_METHOD])) {
-                throw new Yadif_Exception("No method name was set for injection via method.");
-            }
             $methodName = $method[self::CONFIG_METHOD];
-            
+            $params = $method[self::CONFIG_PARAMETERS];
+
             $injection = array();
             if(isset($method[self::CONFIG_ARGUMENTS])) {
                 $argsName = $method[self::CONFIG_ARGUMENTS];
-                if(!is_array($argsName)) {
-                    throw new Yadif_Exception("Argument names for method injection '".$methodName."' have to an array.");
-                }
-
-                $injection = $this->getComponents($argsName);
+                $injection = $this->injectParameters($argsName, null, $params);
             }
 
             if ($componentReflection->getMethod($methodName)->isConstructor()) {
