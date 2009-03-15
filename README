@@ -85,13 +85,24 @@ creates new objects on each call of getComponent().
 
 4. Setting non-object parameters
 ===============
-There are two different syntaxes for non-object parameters.
+Non-object parameters are bound to methods and constructors in a PDO like binding syntax.
+For any non-oject parameter the syntax "double-colon name" has to be used to indicate
+the parameter as non-object parameter.
 
-i.) Non-object parameters in a PDO like binding syntax:
+As an example we take this Class:
 
 class Foo {
     public function __construct($bar, $number) { }
+
+    public function setNumber($number) { }
 }
+
+There are different scopes for these bounded parameters. A global scope and a
+method aware only scope.
+
+i.) Global Scope
+
+Via Yadif_Container::bindParam() it is possible to set global parameters to a container.
 
 $config = array(
     'Foo' => array(
@@ -99,18 +110,43 @@ $config = array(
         'arguments' => array(':bar', ':number'),
     ),
 );
+
 $yadif = new Yadif_Container($config);
 $yadif->bindParam(':bar', 'BarName');
 $yadif->bindParam(':number', 1234);
 
 $foo = $yadif->getComponent('Foo');
 
-ii.) Non-existant strings in the argument list of methods or constructor
+ii.) Method aware scope
+
+Via the configuration mechanism you can bind parameters to a specific method where the parameters occour.
+An example for the object constructor looks like this:
 
 $config = array(
     'Foo' => array(
         'class' => 'Foo',
-        'arguments' => array('BarName', 1234) // BarName is not registered as component
+        'arguments' => array(':bar', ':number'),
+        'parameters' => array(':bar' => 'BarName', ':number' => 1234),
+    ),
+);
+
+$yadif = new Yadif_Container($config);
+$foo   = $yadif->getComponent('Foo');
+
+For a non-object parameter in a method the syntax looks like this:
+
+$config = array(
+    'Foo' => array(
+        'class' => 'Foo',
+        'arguments' => array(':bar', ':number'),
+        'parameters' => array(':bar' => 'BarName', ':number' => 1234),
+        'methods' => array(
+            array(
+                'method' => 'setNumber',
+                'arguments' => array(':number'),
+                'parameters' => array(':number' => 1138),
+            ),
+        ),
     ),
 );
 
