@@ -222,7 +222,8 @@ $config = array(
     ),
     'RouterConfig' => array(
         'class' => 'Zend_Config_Ini',
-        'arguments' => array('/var/www/application/config/routes.ini'),
+        'arguments' => array(':routerConfigFile'),
+        'parameters' => array(':routerConfigFile' => '/var/www/application/config/routes.ini'),
     ),
     'FrontController' => array(
         'class' => 'Zend_Controller_Front',
@@ -242,7 +243,11 @@ $config = array(
             array('method' => 'setParam', 'arguments' => array('logger', 'Logger')),
 
             // Set Controller Directory
-            array('method' => 'setControllerDirectory', 'arguments' => array('/var/www/application/controllers/')),
+            array(
+                'method' => 'setControllerDirectory',
+                'arguments' => array(':controllerDirectory')
+                'parameters' => array(':controllerDirectory' => '/var/www/application/controllers/'),
+            ),
         ),
         'factory' => array('Zend_Controller_Front', 'getInstance'),
     ),
@@ -259,7 +264,8 @@ $config = array(
     ),
     'LoggerWriter' => array(
         'class' => 'Zend_Log_Writer_Stream',
-        'arguments' => array('/var/log/myapplication/errors.log'),
+        'arguments' => array(':loggerStream'),
+        'parameters' => array(':loggerStream' => '/var/log/myapplication/errors.log'),
     ),
     'DatabaseConn' => array(
         'class' => 'Zend_Db_Adapter_Mysql',
