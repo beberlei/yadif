@@ -393,6 +393,11 @@ class Yadif_Container
 		if (!is_string($name)) {
             return $name;
         }
+
+        if(isset($this->_instances[$name])) {
+            return $this->_instances[$name];
+        }
+
         if($name === "ThisContainer") {
             return $this;
         } elseif($name === "CloneContainer") {
@@ -403,9 +408,6 @@ class Yadif_Container
 
 		$component = $this->_container[$name];
         $scope = $component[self::CONFIG_SCOPE];
-        if(isset($this->_instances[$name])) {
-            return $this->_instances[$name];
-        }
 
 		$componentReflection = new ReflectionClass($component[ self::CONFIG_CLASS ]);
 
@@ -474,6 +476,22 @@ class Yadif_Container
         }
         $component = substr($method, 3);
         return $this->getComponent($component);
+    }
+
+    /**
+     * Set instance of a name.
+     *
+     * @throws Yadif_Exception
+     * @param string $name
+     * @param object $instance
+     */
+    public function __set($name, $instance)
+    {
+        if(is_object($instance)) {
+            $this->_instances[$name] = $instance;
+        } else {
+            throw new Yadif_Container("Setting instance '".$name."' with non-object not possible.");
+        }
     }
 
     /**
