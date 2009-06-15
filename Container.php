@@ -1,7 +1,7 @@
 <?php
 /**
  * Yadif
- * 
+ *
  * LICENSE
  *
  * This source file is subject to the new BSD license that is bundled
@@ -136,7 +136,7 @@ class Yadif_Container
 
 	/**
 	 * Getter method for internal array of parameters
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getParameters()
@@ -215,7 +215,7 @@ class Yadif_Container
 			}
 		}
     }
-	
+
 	/**
 	 * Add a component to the container
 	 *
@@ -269,7 +269,7 @@ class Yadif_Container
                     } elseif(!is_array($method[self::CONFIG_ARGUMENTS])) {
                         throw new Yadif_Exception("Arguments of method '".$method[self::CONFIG_METHOD]."' in component ".$name." are not given as an array.");
                     }
-                    
+
                     $config[self::CONFIG_METHODS][$k] = $method;
                 }
             }
@@ -386,10 +386,13 @@ class Yadif_Container
 	 * Get back a fully assembled component based on the configuration provided beforehand
 	 *
 	 * @param  string $name The name of the component
-	 * @return mixed 
+	 * @return mixed
 	 */
 	public function getComponent($name)
 	{
+        $origName = $name;
+        $name = strtolower($name);
+
 		if (!is_string($name)) {
             return $name;
         }
@@ -398,12 +401,12 @@ class Yadif_Container
             return $this->_instances[$name];
         }
 
-        if($name === "ThisContainer") {
+        if($name === "thiscontainer") {
             return $this;
-        } elseif($name === "CloneContainer") {
+        } elseif($name === "clonecontainer") {
             return clone $this;
         } elseif(!array_key_exists($name, $this->_container)) {
-			throw new Yadif_Exception("Component '".$name."' does not exist in container.");
+			throw new Yadif_Exception("Component '".$origName."' does not exist in container.");
         }
 
 		$component = $this->_container[$name];
@@ -416,7 +419,7 @@ class Yadif_Container
 
         if(isset($component[self::CONFIG_FACTORY])) {
             if(!is_callable($component[self::CONFIG_FACTORY])) {
-                throw new Yadif_Exception("No valid callback given for the factory method of '".$name."'.");
+                throw new Yadif_Exception("No valid callback given for the factory method of '".$origName."'.");
             }
             $component = call_user_func_array($component[self::CONFIG_FACTORY], $this->injectParameters($constructorArguments, $name));
         } else if(empty($constructorArguments)) { // if no instructions
@@ -487,11 +490,24 @@ class Yadif_Container
      */
     public function __set($name, $instance)
     {
+        $origName = $name;
+        $name = strtolower($name);
         if(is_object($instance)) {
             $this->_instances[$name] = $instance;
         } else {
-            throw new Yadif_Container("Setting instance '".$name."' with non-object not possible.");
+            throw new Yadif_Container("Setting instance '".$origName."' with non-object not possible.");
         }
+    }
+
+    /**
+     * Is there
+     * @param  string $name
+     * @return boolean
+     */
+    public function __isset($name)
+    {
+        $name = strtolower($name);
+        return isset($this->_instances[$name]);
     }
 
     /**
