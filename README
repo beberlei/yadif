@@ -12,11 +12,12 @@ Table of Contents
 3. Scope Config
 4. Setting non-object parameters
 5. Creating entities or value objects through Container
-6. Zend Framework Front Controller Example
-7. Zend_Config Support
-8. TODOS and Open Questions
-9. Instantiation with Factory methods
-10. Injecting Container Reference or Clones
+6. Zend_Application Integration
+7. Zend Framework Front Controller Example
+8. Zend_Config Support
+9. TODOS and Open Questions
+10. Instantiation with Factory methods
+11. Injecting Container Reference or Clones
 
 1. Basic Syntax
 ================
@@ -206,7 +207,41 @@ You could also use:
 
 $user = $yadif->bindParams(array(':name' => $row['name'], ':id' => $row['id'], ':email' => $row['email']))->getComponent('User');
 
-6. Zend Framework Front Controller Example
+6. Zend_Application Integration
+=========================================
+
+With Zend Framework 1.8 the new Application component is sort of the dependency creation method for MVC (or any other)
+application. Internally it uses a Container based on "Zend_Registry" by default and uses the __isset, __set and __get
+magic methods to check, set and get instantiated resources. This Container is injected into the Front Controller and
+accessible inside the Action Controller by:
+
+$container = $this->getInvokeArg('bootstrap')->getContainer();
+
+This Container can be replaced by the Yadif_Container and be a hybrid of instances injected by Zend_Application Resources
+(via their resource name) and configured components that can be lazy loaded from the Yadif DI Container. You can
+switch the Zend_Registry with Yadif_Container by calling:
+
+$objects = new Zend_Config_Xml(APPLICATION_PATH."/config/objects.xml");
+$container = new Yadif_Container($objects);
+
+// Create application, bootstrap, and run
+$application = new Zend_Application(
+    APPLICATION_ENV,
+    APPLICATION_PATH . '/config/application.xml'
+);
+$application->getBootstrap()->setContainer($container);
+$application->bootstrap()->run();
+
+How are resources injected into the container? Take for an example the "Db" resource.
+If you are using it inside your Zend_Application configuration it will be set as the key:
+
+$container->db;
+
+All resource names are "strtolower"'ed upon setting them into the container, aswell
+as the retrieval keys, so you don't have to think about case-sensitivy when retrieving
+the components from the container.
+
+7. Zend Framework Front Controller Example
 =========================================
 
 $config = array(
@@ -311,7 +346,7 @@ $front->setParam('logger', $logger);
 
 $front->setControllerDirectory('/var/www/application/controllers/');
 
-7. Zend_Config Support
+8. Zend_Config Support
 ===================================
 You can use Zend_config objects as the primary configuration mechanism:
 
@@ -334,7 +369,7 @@ $config = new Zend_Config(array('foo' => array('bar' => 'baz')));
 $yadif = new Yadif_Container($components, $config);
 $baz = $yadif->getComponent("YadifBaz");
 
-8. TODOS and Open Questions
+9. TODOS and Open Questions
 ======================================
 1. String and Component Name Ambigoutiy - How to solve it?
     Solved! Allow non-object parameters only through 'arguments' key of configuration and bound via ':name' syntax.
@@ -369,7 +404,7 @@ $baz = $yadif->getComponent("YadifBaz");
     but in this case the addComponent() functionality has to be extended to allow for a convention over configuration
     compatible merging of existing with added component definitions.
 
-9. Instantiation with Factory methods
+10. Instantiation with Factory methods
 =====================================
 Sometimes you have to create certain objects through a factory method or a singleton
 creation facility. You can do that with a specific factory key:
@@ -385,7 +420,7 @@ The factory key has to hold a valid PHP callback. Then not the constructor, but
 the factory method is called to create the object. No check is performed if the object
 is created successfully.
 
-10. Injecting Container Reference or Clones
+11. Injecting Container Reference or Clones
 ===========================================
 Using 'ThisContainer' or 'CloneContainer' creates a reference to the current container
 or clones the container and injects it.
