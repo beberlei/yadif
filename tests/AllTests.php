@@ -7,6 +7,7 @@ require_once "YadifConfigComponentTest.php";
 require_once "YadifInstantiateObjectGraphTest.php";
 require_once "YadifBindParamsTest.php";
 require_once "YadifEnforceSingletonTest.php";
+require_once "YadifZendApplicationComplianceTest.php";
 
 class AllTests
 {
@@ -17,6 +18,7 @@ class AllTests
         $suite->addTestSuite('YadifInstantiateObjectGraphTest');
         $suite->addTestSuite('YadifBindParamsTest');
         $suite->addTestSuite('YadifEnforceSingletonTest');
+        $suite->addTestSuite('YadifZendApplicationComplianceTest');
 
         return $suite;
     }

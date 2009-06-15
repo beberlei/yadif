@@ -67,14 +67,4 @@ class YadifEnforceSingletonTest extends PHPUnit_Framework_TestCase
         $component = $yadif->getComponent("YadifFoo");
         $this->assertFalse($component->a === $component->b, 'Not Enforcing singleton of object did not work!');
     }
-
-    public function testSetInstanceViaMagicSet()
-    {
-        $class = new stdClass();
-
-        $yadif = new Yadif_Container();
-        $yadif->stdClass = $class;
-
-        $this->assertSame($class, $yadif->stdClass);
-    }
 }

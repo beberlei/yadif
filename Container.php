@@ -274,6 +274,7 @@ class Yadif_Container
                 }
             }
 
+            $name = strtolower($name);
             $this->_container[$name] = $config;
         } else {
             throw new Yadif_Exception('$string not string|Yadif_Container, is ' . gettype($name));
@@ -314,6 +315,7 @@ class Yadif_Container
 	 */
 	public function getParam($param, $component=null)
 	{
+        $component = strtolower($component);
         if(isset($this->_container[$component])) {
             $component = $this->_container[$component];
             if(isset($component[self::CONFIG_PARAMETERS][$param])) {
@@ -390,12 +392,12 @@ class Yadif_Container
 	 */
 	public function getComponent($name)
 	{
-        $origName = $name;
-        $name = strtolower($name);
-
 		if (!is_string($name)) {
             return $name;
         }
+
+        $origName = $name;
+        $name = strtolower($name);
 
         if(isset($this->_instances[$name])) {
             return $this->_instances[$name];
@@ -500,14 +502,18 @@ class Yadif_Container
     }
 
     /**
-     * Is there
+     * Is there an instance or a component registered with the given name?
+     *
      * @param  string $name
      * @return boolean
      */
     public function __isset($name)
     {
         $name = strtolower($name);
-        return isset($this->_instances[$name]);
+        return (
+            isset($this->_instances[$name]) ||
+            isset($this->_container[$name])
+        );
     }
 
     /**
