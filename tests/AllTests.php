@@ -11,6 +11,7 @@ require_once "YadifBindParamsTest.php";
 require_once "YadifEnforceSingletonTest.php";
 require_once "YadifZendApplicationComplianceTest.php";
 require_once "YadifBuilderTest.php";
+require_once "YadifModuleTest.php";
 
 class AllTests
 {
@@ -23,6 +24,7 @@ class AllTests
         $suite->addTestSuite('YadifEnforceSingletonTest');
         $suite->addTestSuite('YadifZendApplicationComplianceTest');
         $suite->addTestSuite('YadifBuilderTest');
+        $suite->addTestSuite('YadifModuleTest');
 
         return $suite;
     }
