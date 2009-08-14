@@ -15,9 +15,12 @@ Table of Contents
 6. Zend_Application Integration
 7. Zend Framework Front Controller Example
 8. Zend_Config Support
-9. TODOS and Open Questions
+9. Open Questions
 10. Instantiation with Factory methods
 11. Injecting Container Reference or Clones
+12. Using the Builder for a fluent configuration interface
+13. Modules
+14. TODOs
 
 1. Basic Syntax
 ================
