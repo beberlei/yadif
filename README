@@ -424,3 +424,78 @@ is created successfully.
 ===========================================
 Using 'ThisContainer' or 'CloneContainer' creates a reference to the current container
 or clones the container and injects it.
+
+12. Using the Builder for a fluent configuration interface
+===========================================
+At some point you end up with a huge XML or PHP Array configuration for all your
+dependency injection requirements, which may be unmanagable and annoying to work with.
+
+The "Yadif_Builder" class offers a fluent interface to create a Yadif compatible component
+configuration.
+
+$builder = new Yadif_Builder();
+$builder->bind("InterfaceName")
+        ->to("Implementation")
+        ->args("ConstructorDependencyA", "ConstructorDependencyB", ":paramA")
+        ->param(":paramA", "foo")
+        ->method("setFoo")->args("foo");
+        ->method("setBar")->args("bar");
+        ->scope("singleton");
+
+This translates into a config array internally and which can be retrieved by calling:
+
+$config = $builder->finalize();
+$yadif = new Yadif_Container($config);
+
+The following methods are available on the builder:
+
+1. bind($componentName)
+Registers a component with the name and automatically sets it as implementation also.
+
+2. to($implementationName)
+Overwrite the implementation with this class
+
+3. args($arg1, $arg2, ...)
+Depending on the context, set constructor or last registered method arguments. If you
+have set a method, you can't set constructor arguments anymore.
+
+4. param($paramName, $paramValue)
+Depending on the context, set constructor or last registered method parameter.
+
+5. method($methodName)
+Register a method to be called when instantiating the implementation.
+
+6. scope($scope)
+Set the scope of the component to "singleton" or "prototype"
+
+7. toProvider($callback)
+Set a factory PHP callback variable, which is used instead of a new operation via reflection
+to create the object.
+
+13. Modules
+===================================
+
+Configuration of single instances and interfaces can be quite cumbersome in large applications.
+If you want to switch module implementations with each other it might be nice to be able
+to group configurations. This is possible by extending the "Yadif_Module".
+
+class MyModule extends Yadif_Module
+{
+    protected function configure()
+    {
+        $this->bind("Foo")->to("Bar")->args("foo", "bar");
+        $this->bind("Bar")->to("Baz");
+    }
+}
+
+Internally the Module uses a Builder instance to create the config. To stuff this module into
+Yadif, you have to transform it to a config and instantiate the Container:
+
+$module = new MyModule();
+$yadif = new Yadif_Container($module->getConfig());
+
+14. TODOs
+==========================================
+1. Make Yadif_Container accept both builder and module and transform them internally
+2. Add Dependency Management object, which allows to lazy load modules and their dependend
+   on modules.
