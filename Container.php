@@ -37,15 +37,15 @@ class Yadif_Container
      */
     const SCOPE_PROTOTYPE = "prototype";
 
-	/**
-	 * Class index key of component $config
-	 */
-	const CONFIG_CLASS = 'class';
+    /**
+     * Class index key of component $config
+     */
+    const CONFIG_CLASS = 'class';
 
-	/**
-	 * Arguments index key of component $config
-	 */
-	const CONFIG_ARGUMENTS = 'arguments';
+    /**
+     * Arguments index key of component $config
+     */
+    const CONFIG_ARGUMENTS = 'arguments';
 
     /**
      * Parameters
@@ -72,19 +72,19 @@ class Yadif_Container
      */
     const CONFIG_FACTORY = 'factory';
 
-	/**
+    /**
      * container of component configurations
      *
      * @var array
      */
-	protected $_container = array();
+    protected $_container = array();
 
-	/**
+    /**
      * parameters which have been set, expected to be bound
      *
      * @var array
      */
-	protected $_parameters = array();
+    protected $_parameters = array();
 
     /**
      * All managed instances inside this container which are not Scoped "Prototype"
@@ -106,11 +106,11 @@ class Yadif_Container
      * @param Zend_Config|array $components
      * @param Zend_Config       $config
      */
-	public function __construct($components = array(), Zend_Config $config=null)
-	{
+    public function __construct($components = array(), Zend_Config $config=null)
+    {
         $this->addComponents($components);
         $this->setConfig($config);
-	}
+    }
 
     /**
      * Set Config object
@@ -124,25 +124,25 @@ class Yadif_Container
         return $this;
     }
 
-	/**
-	 * Getter method for internal array of component configurations
-	 *
-	 * @return array
-	 */
-	public function getContainer()
-	{
-		return $this->_container;
-	}
+    /**
+     * Getter method for internal array of component configurations
+     *
+     * @return array
+     */
+    public function getContainer()
+    {
+        return $this->_container;
+    }
 
-	/**
-	 * Getter method for internal array of parameters
-	 *
-	 * @return array
-	 */
-	public function getParameters()
-	{
-		return $this->_parameters;
-	}
+    /**
+     * Getter method for internal array of parameters
+     *
+     * @return array
+     */
+    public function getParameters()
+    {
+        return $this->_parameters;
+    }
 
     /**
      * Get currently managed instances of the container.
@@ -209,27 +209,27 @@ class Yadif_Container
             $components = $components->toArray();
         }
 
-		if (isset($components) && is_array($components)) {
-			foreach ($components as $componentName => $componentConfig) {
-				$this->addComponent( $componentName, $componentConfig );
-			}
-		}
+        if (isset($components) && is_array($components)) {
+            foreach ($components as $componentName => $componentConfig) {
+                $this->addComponent( $componentName, $componentConfig );
+            }
+        }
     }
 
-	/**
-	 * Add a component to the container
-	 *
-	 * If $config is omitted, $name is assumed to be the classname.
-	 *
-	 * @param string|Yadif_Container $name Class-tag, class, or Yadif_Container
-	 * @param array $config Array of configuration values
-	 * @return Yadif_Container
-	 */
-	public function addComponent($name = null, array $config = null)
-	{
-		if ($name instanceof Yadif_Container) { // if Yadif_Container
+    /**
+     * Add a component to the container
+     *
+     * If $config is omitted, $name is assumed to be the classname.
+     *
+     * @param string|Yadif_Container $name Class-tag, class, or Yadif_Container
+     * @param array $config Array of configuration values
+     * @return Yadif_Container
+     */
+    public function addComponent($name = null, array $config = null)
+    {
+        if ($name instanceof Yadif_Container) { // if Yadif_Container
             $this->merge($name);
-		} elseif(is_string($name)) {
+        } elseif(is_string($name)) {
             if (!is_array($config) || !isset($config[self::CONFIG_CLASS])) { // assume name is the class name
                 $config[self::CONFIG_CLASS] = $name;
             }
@@ -280,41 +280,41 @@ class Yadif_Container
             throw new Yadif_Exception('$string not string|Yadif_Container, is ' . gettype($name));
         }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Bind a parameter
-	 *
-	 * @param string $param The parameter name, to be given with a leading colon ":param"
-	 * @param mixed $value The value to bind to the parameter
-	 * @return Yadif_Container
-	 */
-	public function bindParam($param, $value)
-	{
-		if (!is_string($param)) {
+    /**
+     * Bind a parameter
+     *
+     * @param string $param The parameter name, to be given with a leading colon ":param"
+     * @param mixed $value The value to bind to the parameter
+     * @return Yadif_Container
+     */
+    public function bindParam($param, $value)
+    {
+        if (!is_string($param)) {
             throw new Yadif_Exception('$param not string, is ' . gettype($param));
         }
 
-		if ($param[0] != ':') {
-			throw new Yadif_Exception($param . ' must start with a colon (:)');
+        if ($param[0] != ':') {
+            throw new Yadif_Exception($param . ' must start with a colon (:)');
         }
 
-		$this->_parameters[$param] = $value;
+        $this->_parameters[$param] = $value;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieve a parameter by name
-	 *
-	 * @param  mixed $param Retrieve named parameter
+    /**
+     * Retrieve a parameter by name
+     *
+     * @param  mixed $param Retrieve named parameter
      * @param  string $component
      * @param  string $method
-	 * @return mixed
-	 */
-	public function getParam($param, $component=null)
-	{
+     * @return mixed
+     */
+    public function getParam($param, $component=null)
+    {
         $component = strtolower($component);
         if(isset($this->_container[$component])) {
             $component = $this->_container[$component];
@@ -324,29 +324,29 @@ class Yadif_Container
         }
 
         if(isset($this->_parameters[$param])) {
-			return $this->_parameters[$param];
-		} else {
+            return $this->_parameters[$param];
+        } else {
             return null;
         }
-	}
+    }
 
-	/**
-	 * Bind multiple parameters by way of array
-	 * @param array $params Array of parameters, key as param to bind, value as the bound value
-	 * @return Yadif_Container
-	 */
-	public function bindParams($params = null)
-	{
-		if (!is_array($params)) {
-			throw new Yadif_Exception('$params must be array, is ' . gettype($params));
+    /**
+     * Bind multiple parameters by way of array
+     * @param array $params Array of parameters, key as param to bind, value as the bound value
+     * @return Yadif_Container
+     */
+    public function bindParams($params = null)
+    {
+        if (!is_array($params)) {
+            throw new Yadif_Exception('$params must be array, is ' . gettype($params));
         }
 
-		foreach ($params as $param => $value) {
-			$this->bindParam($param, $value);
-		}
+        foreach ($params as $param => $value) {
+            $this->bindParam($param, $value);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Get several components at once.
@@ -384,15 +384,15 @@ class Yadif_Container
         return $injection;
     }
 
-	/**
-	 * Get back a fully assembled component based on the configuration provided beforehand
-	 *
-	 * @param  string $name The name of the component
-	 * @return mixed
-	 */
-	public function getComponent($name)
-	{
-		if (!is_string($name)) {
+    /**
+     * Get back a fully assembled component based on the configuration provided beforehand
+     *
+     * @param  string $name The name of the component
+     * @return mixed
+     */
+    public function getComponent($name)
+    {
+        if (!is_string($name)) {
             return $name;
         }
 
@@ -408,15 +408,15 @@ class Yadif_Container
         } elseif($name === "clonecontainer") {
             return clone $this;
         } elseif(!array_key_exists($name, $this->_container)) {
-			throw new Yadif_Exception("Component '".$origName."' does not exist in container.");
+            throw new Yadif_Exception("Component '".$origName."' does not exist in container.");
         }
 
-		$component = $this->_container[$name];
+        $component = $this->_container[$name];
         $scope = $component[self::CONFIG_SCOPE];
 
-		$componentReflection = new ReflectionClass($component[ self::CONFIG_CLASS ]);
+        $componentReflection = new ReflectionClass($component[ self::CONFIG_CLASS ]);
 
-		$constructorArguments = $component[self::CONFIG_ARGUMENTS];
+        $constructorArguments = $component[self::CONFIG_ARGUMENTS];
         $setterMethods        = $component[self::CONFIG_METHODS];
 
         if(isset($component[self::CONFIG_FACTORY])) {
@@ -425,10 +425,10 @@ class Yadif_Container
             }
             $component = call_user_func_array($component[self::CONFIG_FACTORY], $this->injectParameters($constructorArguments, $name));
         } else if(empty($constructorArguments)) { // if no instructions
-			$component = $componentReflection->newInstance();
-        } else {
-            $component = $componentReflection->newInstanceArgs($this->injectParameters($constructorArguments, $name));
-        }
+                $component = $componentReflection->newInstance();
+            } else {
+                $component = $componentReflection->newInstanceArgs($this->injectParameters($constructorArguments, $name));
+            }
 
         foreach ($setterMethods as $method) {
             $methodName = $method[self::CONFIG_METHOD];
@@ -451,8 +451,8 @@ class Yadif_Container
             $this->_instances[$name] = $component;
         }
 
-		return $component;
-	}
+        return $component;
+    }
 
     /**
      * Magic Get accesses the {@link getComponent} function and returns the object.
@@ -511,7 +511,7 @@ class Yadif_Container
     {
         $name = strtolower($name);
         return (
-            isset($this->_instances[$name]) ||
+        isset($this->_instances[$name]) ||
             isset($this->_container[$name])
         );
     }
