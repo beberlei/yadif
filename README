@@ -434,7 +434,9 @@ At some point you end up with a huge XML or PHP Array configuration for all your
 dependency injection requirements, which may be unmanagable and annoying to work with.
 
 The "Yadif_Builder" class offers a fluent interface to create a Yadif compatible component
-configuration.
+configuration. This gives a more explicit mechanism to create the configuration, which
+can also be type-hinted in any IDE and therefore might offer more security when
+working with the configuration.
 
 $builder = new Yadif_Builder();
 $builder->bind("InterfaceName")
@@ -496,6 +498,40 @@ Yadif, you have to transform it to a config and instantiate the Container:
 
 $module = new MyModule();
 $yadif = new Yadif_Container($module->getConfig());
+
+Additionally the Module allows for a nice separation of different instance types, which
+might help to structure your dependency injection needs:
+
+class MyNewModule extends Yadif_Module
+{
+    protected function configure()
+    {
+        $this->bindHelpers();
+        $this->bindDataAccessObjects();
+        $this->bindServices();
+        $this->bindDomainObjects();
+    }
+
+    private function bindHelpers()
+    {
+        $this->bind("Foo")->to("Bar");
+    }
+
+    private function bindDataAccessObjects()
+    {
+        // bindings
+    }
+
+    private function bindServices()
+    {
+        // bindings
+    }
+
+    private function bindDomainObjects()
+    {
+        // bindings
+    }
+}
 
 14. TODOs
 ==========================================
