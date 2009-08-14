@@ -27,7 +27,7 @@ class Yadif_Module
     /**
      * @var bool
      */
-    private $_isConfigured = true;
+    private $_isConfigured = false;
 
     /**
      * @var Yadif_Builder

@@ -27,7 +27,7 @@ class Yadif_Builder
     /**
      * @var array
      */
-    private $_config = null;
+    private $_config = array();
 
     /**
      * @var string
