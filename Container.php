@@ -242,11 +242,6 @@ class Yadif_Container
                 $config[self::CONFIG_PARAMETERS] = array();
             }
 
-            // if class is set and doesn't exist
-            if (!class_exists( $config[self::CONFIG_CLASS] )) {
-                throw new Yadif_Exception( 'Class ' . $config[self::CONFIG_CLASS] . ' not found' );
-            }
-
             // check for singleton config parameter and set it to true as default if not found.
             if(!isset($config[self::CONFIG_SCOPE])) {
                 $config[self::CONFIG_SCOPE] = self::SCOPE_SINGLETON;
@@ -385,6 +380,16 @@ class Yadif_Container
     }
 
     /**
+     * Clear a current instance.
+     * 
+     * @param string $name
+     */
+    public function clear($name)
+    {
+        unset($this->_instances[$name]);
+    }
+
+    /**
      * Get back a fully assembled component based on the configuration provided beforehand
      *
      * @param  string $name The name of the component
@@ -413,6 +418,11 @@ class Yadif_Container
 
         $component = $this->_container[$name];
         $scope = $component[self::CONFIG_SCOPE];
+
+        // if class is set and doesn't exist
+        if (!class_exists( $component[self::CONFIG_CLASS] )) {
+            throw new Yadif_Exception( 'Class ' . $component[self::CONFIG_CLASS] . ' not found' );
+        }
 
         $componentReflection = new ReflectionClass($component[ self::CONFIG_CLASS ]);
 
@@ -499,6 +509,16 @@ class Yadif_Container
         } else {
             throw new Yadif_Container("Setting instance '".$origName."' with non-object not possible.");
         }
+    }
+
+    /**
+     * Clear an instance.
+     * 
+     * @param string $name
+     */
+    public function __unset($name)
+    {
+        $this->_instances[$name];
     }
 
     /**

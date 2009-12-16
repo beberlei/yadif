@@ -20,7 +20,8 @@ Table of Contents
 11. Injecting Container Reference or Clones
 12. Using the Builder for a fluent configuration interface
 13. Modules
-14. TODOs
+14. Clearing Instances
+15. TODOs
 
 1. Basic Syntax
 ================
@@ -533,7 +534,15 @@ class MyNewModule extends Yadif_Module
     }
 }
 
-14. TODOs
+14. Clearing Instances
+======================
+
+Sometimes services have lots of internal state which is expensive memory wise, especially for long
+running scripts like cron jobs. You can clear instances by calling:
+
+$container->clear('ComponentName');
+
+15. TODOs
 ==========================================
 1. Make Yadif_Container accept both builder and module and transform them internally
 2. Add Dependency Management object, which allows to lazy load modules and their dependend
