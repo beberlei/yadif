@@ -45,12 +45,13 @@ class YadifConfigComponentTest extends PHPUnit_Framework_TestCase
         $yadif->addComponent(array());
     }
 
-    public function testAddComponentWithNonExistantClassRaisesException()
+    public function testGetComponentWithNonExistantClassRaisesException()
     {
-        $this->setExpectedException("Yadif_Exception");
-
         $yadif = new Yadif_Container();
         $yadif->addComponent("YadifFoo", array("class" => "NonExistantYadifClass"));
+
+        $this->setExpectedException("Yadif_Exception");
+        $yadif->getComponent('YadifFoo');
     }
 
     public function testGetComponentOnEmptyContainer()
