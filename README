@@ -132,7 +132,7 @@ $config = array(
     'Foo' => array(
         'class' => 'Foo',
         'arguments' => array(':bar', ':number'),
-        'parameters' => array(':bar' => 'BarName', ':number' => 1234),
+        'params' => array(':bar' => 'BarName', ':number' => 1234),
     ),
 );
 
@@ -145,12 +145,12 @@ $config = array(
     'Foo' => array(
         'class' => 'Foo',
         'arguments' => array(':bar', ':number'),
-        'parameters' => array(':bar' => 'BarName', ':number' => 1234),
+        'params' => array(':bar' => 'BarName', ':number' => 1234),
         'methods' => array(
             array(
                 'method' => 'setNumber',
                 'arguments' => array(':number'),
-                'parameters' => array(':number' => 1138),
+                'params' => array(':number' => 1138),
             ),
         ),
     ),
@@ -263,7 +263,7 @@ $config = array(
     'RouterConfig' => array(
         'class' => 'Zend_Config_Ini',
         'arguments' => array(':routerConfigFile'),
-        'parameters' => array(':routerConfigFile' => '/var/www/application/config/routes.ini'),
+        'params' => array(':routerConfigFile' => '/var/www/application/config/routes.ini'),
     ),
     'FrontController' => array(
         'class' => 'Zend_Controller_Front',
@@ -286,7 +286,7 @@ $config = array(
             array(
                 'method' => 'setControllerDirectory',
                 'arguments' => array(':controllerDirectory')
-                'parameters' => array(':controllerDirectory' => '/var/www/application/controllers/'),
+                'params' => array(':controllerDirectory' => '/var/www/application/controllers/'),
             ),
         ),
         'factory' => array('Zend_Controller_Front', 'getInstance'),
@@ -305,7 +305,7 @@ $config = array(
     'LoggerWriter' => array(
         'class' => 'Zend_Log_Writer_Stream',
         'arguments' => array(':loggerStream'),
-        'parameters' => array(':loggerStream' => '/var/log/myapplication/errors.log'),
+        'params' => array(':loggerStream' => '/var/log/myapplication/errors.log'),
     ),
     'DatabaseConn' => array(
         'class' => 'Zend_Db_Adapter_Mysql',
@@ -538,3 +538,4 @@ class MyNewModule extends Yadif_Module
 1. Make Yadif_Container accept both builder and module and transform them internally
 2. Add Dependency Management object, which allows to lazy load modules and their dependend
    on modules.
+3. Add Contextual Bindings via "Annotations" or "Names".
