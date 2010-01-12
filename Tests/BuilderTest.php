@@ -1,6 +1,6 @@
 <?php
 
-class YadifBuilderTest extends PHPUnit_Framework_TestCase
+class Yadif_Tests_BuilderTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {

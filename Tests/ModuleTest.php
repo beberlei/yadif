@@ -1,6 +1,6 @@
 <?php
 
-class YadifModuleTest extends PHPUnit_Framework_TestCase
+class Yadif_Tests_ModuleTest extends PHPUnit_Framework_TestCase
 {
     public function testModuleReturnsBuilderOnBind()
     {

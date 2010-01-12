@@ -4,7 +4,7 @@ require_once dirname(__FILE__)."/../Container.php";
 require_once "Fixture.php";
 require_once "PHPUnit/Framework.php";
 
-class YadifBindParamsTest extends PHPUnit_Framework_TestCase
+class Yadif_Tests_BindParamsTest extends PHPUnit_Framework_TestCase
 {
     public function testGetParamReturnsNullByDefault()
     {

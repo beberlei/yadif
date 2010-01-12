@@ -1,6 +1,6 @@
 <?php
 
-class YadifZendApplicationComplianceTest extends PHPUnit_Framework_TestCase
+class Yadif_Tests_ZendApplicationComplianceTest extends PHPUnit_Framework_TestCase
 {
     public function testSetInstanceViaMagicSet()
     {
