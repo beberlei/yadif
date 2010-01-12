@@ -96,7 +96,7 @@ class Yadif_Builder
     public function args()
     {
         $args = func_get_args();
-        if($this->_lastMethodKey === null) {
+        if ($this->_lastMethodKey === null) {
             $this->_config[$this->_lastComponentName]['arguments'] = $args;
         } else {
             $this->_config[$this->_lastComponentName]['methods'][$this->_lastMethodKey]['arguments'] = $args;
