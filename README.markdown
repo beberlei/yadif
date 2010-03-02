@@ -19,6 +19,7 @@ Table of Contents
 - Open Questions
 - Instantiation with Factory methods
 - Injecting Container Reference or Clones
+- Decorating Components
 - Using the Builder for a fluent configuration interface
 - Modules
 - Clearing Instances
@@ -443,7 +444,32 @@ is created successfully.
 Using 'ThisContainer' or 'CloneContainer' creates a reference to the current container
 or clones the container and injects it.
 
-12. Using the Builder for a fluent configuration interface
+12. Decorating Components
+=============
+
+You can decorate components with other components by specifiying the 'decorateWith' option
+on a components configuration:
+
+    $config = array(
+        'YadifBaz' => array(
+            'class' => 'YadifBaz',
+            'decorateWith' => array('YadifBar', 'YadifFoo')
+        ),
+        'YadifBar' => array(
+            'arguments' => array('DecoratedInstance')
+        ),
+        'YadifFoo' => array(
+            'arguments' => array('DecoratedInstance')
+        ),
+    );
+
+This leads to the following object tree:
+
+1. YadifBaz is instantiated.
+2. YadifBar is instantiated and YadifBaz is used as the first argument (DecoratedInstance)
+3. YadifFoo is instantiated and YadifBar is used as the first argument (DecoratedInstance)
+
+13. Using the Builder for a fluent configuration interface
 =============
 
 At some point you end up with a huge XML or PHP Array configuration for all your
@@ -493,7 +519,7 @@ Set the scope of the component to "singleton" or "prototype"
 Set a factory PHP callback variable, which is used instead of a new operation via reflection
 to create the object.
 
-13. Modules
+14. Modules
 =============
 
 Configuration of single instances and interfaces can be quite cumbersome in large applications.
@@ -549,7 +575,7 @@ might help to structure your dependency injection needs:
         }
     }
 
-14. Clearing Instances
+15. Clearing Instances
 =============
 
 Sometimes services have lots of internal state which is expensive memory wise, especially for long
@@ -557,7 +583,7 @@ running scripts like cron jobs. You can clear instances by calling:
 
     $container->clear('ComponentName');
 
-15. TODOs
+16. TODOs
 =============
 
 - Add Dependency Management object, which allows to lazy load modules and their dependend
