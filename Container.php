@@ -72,6 +72,8 @@ class Yadif_Container
      */
     const CONFIG_FACTORY = 'factory';
 
+    const CONFIG_DECORATED_WITH = 'decorateWith';
+
     /**
      * container of component configurations
      *
@@ -433,11 +435,11 @@ class Yadif_Container
             if(!is_callable($component[self::CONFIG_FACTORY])) {
                 throw new Yadif_Exception("No valid callback given for the factory method of '".$origName."'.");
             }
-            $component = call_user_func_array($component[self::CONFIG_FACTORY], $this->injectParameters($constructorArguments, $name));
+            $componentInstance = call_user_func_array($component[self::CONFIG_FACTORY], $this->injectParameters($constructorArguments, $name));
         } else if(empty($constructorArguments)) { // if no instructions
-                $component = $componentReflection->newInstance();
+                $componentInstance = $componentReflection->newInstance();
             } else {
-                $component = $componentReflection->newInstanceArgs($this->injectParameters($constructorArguments, $name));
+                $componentInstance = $componentReflection->newInstanceArgs($this->injectParameters($constructorArguments, $name));
             }
 
         foreach ($setterMethods as $method) {
@@ -453,15 +455,23 @@ class Yadif_Container
             if ($componentReflection->getMethod($methodName)->isConstructor()) {
                 throw new Yadif_Exception("Cannot use constructor in 'methods' setter injection list. Use 'arguments' key instead.");
             } else {
-                call_user_func_array(array($component, $methodName), $injection);
+                call_user_func_array(array($componentInstance, $methodName), $injection);
             }
         }
 
-        if($scope !== self::SCOPE_PROTOTYPE) {
-            $this->_instances[$name] = $component;
+        if (isset($component[self::CONFIG_DECORATED_WITH])) {
+            foreach ($component[self::CONFIG_DECORATED_WITH] AS $decoratorComponent) {
+                $this->_instances['decoratedinstance'] = $componentInstance;
+                $componentInstance = $this->getComponent($decoratorComponent);
+            }
+            unset($this->_instances['decoratedinstance']);
         }
 
-        return $component;
+        if($scope !== self::SCOPE_PROTOTYPE) {
+            $this->_instances[$name] = $componentInstance;
+        }
+
+        return $componentInstance;
     }
 
     /**

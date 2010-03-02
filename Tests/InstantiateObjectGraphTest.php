@@ -238,4 +238,28 @@ class Yadif_Tests_InstantiateObjectGraphTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('aloah!', $components['foo']->a);
         $this->assertEquals($components['foo']->b, $components['baz']);
     }
+
+    public function testDecorateInstance()
+    {
+        $config = array(
+            'YadifBaz' => array(
+                'class' => 'YadifBaz',
+                'decorateWith' => array('YadifBar', 'YadifFoo')
+            ),
+            'YadifBar' => array(
+                'arguments' => array('DecoratedInstance')
+            ),
+            'YadifFoo' => array(
+                'arguments' => array('DecoratedInstance')
+            ),
+        );
+
+        $yadif = new Yadif_Container($config);
+
+        $baz = $yadif->getComponent('YadifBaz');
+
+        $this->assertType('YadifFoo', $baz);
+        $this->assertType('YadifBar', $baz->a);
+        $this->assertType('YadifBaz', $baz->a->a);
+    }
 }
