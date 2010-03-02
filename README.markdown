@@ -519,6 +519,9 @@ Set the scope of the component to "singleton" or "prototype"
 Set a factory PHP callback variable, which is used instead of a new operation via reflection
 to create the object.
 
+- decorateWith($decoratorComponentName)
+Set a decorator component name for the current component.
+
 14. Modules
 =============
 

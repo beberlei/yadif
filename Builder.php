@@ -151,4 +151,18 @@ class Yadif_Builder
         $this->_config[$this->_lastComponentName]['scope'] = $scope;
         return $this;
     }
+
+    /**
+     *
+     * @param  string $decoratorComponentName
+     * @return Yadif_Builder
+     */
+    public function decorateWith($decoratorComponentName)
+    {
+        if (!isset($this->_config[$this->_lastComponentName]['decorateWith'])) {
+            $this->_config[$this->_lastComponentName]['decorateWith'] = array();
+        }
+        $this->_config[$this->_lastComponentName]['decorateWith'][] = $decoratorComponentName;
+        return $this;
+    }
 }

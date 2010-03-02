@@ -235,6 +235,20 @@ class Yadif_Tests_BuilderTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testDecorateWith()
+    {
+        $this->builder->bind('stdClass')->decorateWith('foo');
+
+        $this->assertBuilder(
+            array(
+                'stdClass' => array(
+                    'class' => 'stdClass',
+                    'decorateWith' => array('foo'),
+                ),
+            )
+        );
+    }
+
     public function assertBuilder($expectedConfig)
     {
         $this->assertEquals($expectedConfig, $this->builder->finalize());
