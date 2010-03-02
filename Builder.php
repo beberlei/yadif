@@ -114,15 +114,15 @@ class Yadif_Builder
     public function param($paramName, $paramValue)
     {
         if($this->_lastMethodKey === null) {
-            if(!isset($this->_config[$this->_lastComponentName]['parameters'])) {
-                $this->_config[$this->_lastComponentName]['parameters'] = array();
+            if(!isset($this->_config[$this->_lastComponentName]['params'])) {
+                $this->_config[$this->_lastComponentName]['params'] = array();
             }
-            $this->_config[$this->_lastComponentName]['parameters'][$paramName] = $paramValue;
+            $this->_config[$this->_lastComponentName]['params'][$paramName] = $paramValue;
         } else {
-            if(!isset($this->_config[$this->_lastComponentName]['methods'][$this->_lastMethodKey]['parameters'])) {
-                $this->_config[$this->_lastComponentName]['methods'][$this->_lastMethodKey]['parameters'] = array();
+            if(!isset($this->_config[$this->_lastComponentName]['methods'][$this->_lastMethodKey]['params'])) {
+                $this->_config[$this->_lastComponentName]['methods'][$this->_lastMethodKey]['params'] = array();
             }
-            $this->_config[$this->_lastComponentName]['methods'][$this->_lastMethodKey]['parameters'][$paramName] = $paramValue;
+            $this->_config[$this->_lastComponentName]['methods'][$this->_lastMethodKey]['params'][$paramName] = $paramValue;
         }
         return $this;
     }

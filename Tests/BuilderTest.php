@@ -42,7 +42,7 @@ class Yadif_Tests_BuilderTest extends PHPUnit_Framework_TestCase
                 'stdClass' => array(
                     'class' => 'stdObject',
                     'arguments' => array(':foo'),
-                    'parameters' => array(':foo' => 'bar'),
+                    'params' => array(':foo' => 'bar'),
                 )
             )
         );
@@ -125,7 +125,7 @@ class Yadif_Tests_BuilderTest extends PHPUnit_Framework_TestCase
                 'stdClass' => array(
                     'class' => 'stdClass',
                     'methods' => array(
-                        array('method' => 'setFoo', 'arguments' => array(':foo'), 'parameters' => array(':foo' => 'bar')),
+                        array('method' => 'setFoo', 'arguments' => array(':foo'), 'params' => array(':foo' => 'bar')),
                      ),
                 )
             )
@@ -143,9 +143,9 @@ class Yadif_Tests_BuilderTest extends PHPUnit_Framework_TestCase
                 'stdClass' => array(
                     'class' => 'stdClass',
                     'arguments' => array(':foo'),
-                    'parameters' => array(':foo' => 'baz'),
+                    'params' => array(':foo' => 'baz'),
                     'methods' => array(
-                        array('method' => 'setFoo', 'arguments' => array(':foo'), 'parameters' => array(':foo' => 'bar')),
+                        array('method' => 'setFoo', 'arguments' => array(':foo'), 'params' => array(':foo' => 'bar')),
                      ),
                 )
             )
