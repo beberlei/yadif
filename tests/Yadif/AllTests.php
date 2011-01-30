@@ -1,10 +1,17 @@
 <?php
 
-require_once dirname(__FILE__)."/../Container.php";
-require_once dirname(__FILE__)."/../Builder.php";
-require_once dirname(__FILE__)."/../Module.php";
-require_once "PHPUnit/Framework.php";
+require_once __DIR__ . "/../../vendor/symfony/src/Symfony/Component/HttpFoundation/UniversalClassLoader.php";
 
+$loader = new Symfony\Component\HttpFoundation\UniversalClassLoader();
+$loader->registerNamespace('Symfony', __DIR__.'/../../vendor/symfony/src/');
+$loader->register();
+
+require_once __DIR__."/../../src/Yadif/Container.php";
+require_once __DIR__."/../../src/Yadif/Builder.php";
+require_once __DIR__."/../../src/Yadif/Module.php";
+require_once __DIR__."/../../src/Yadif/Loader/YadifLoader.php";
+
+require_once "Fixture.php";
 require_once "ConfigComponentTest.php";
 require_once "InstantiateObjectGraphTest.php";
 require_once "BindParamsTest.php";
@@ -12,6 +19,7 @@ require_once "EnforceSingletonTest.php";
 require_once "ZendApplicationComplianceTest.php";
 require_once "BuilderTest.php";
 require_once "ModuleTest.php";
+require_once "SymfonyYadifLoaderTest.php";
 
 class Yadif_Tests_AllTests
 {
@@ -25,6 +33,7 @@ class Yadif_Tests_AllTests
         $suite->addTestSuite('Yadif_Tests_ZendApplicationComplianceTest');
         $suite->addTestSuite('Yadif_Tests_BuilderTest');
         $suite->addTestSuite('Yadif_Tests_ModuleTest');
+        $suite->addTestSuite('Yadif_Tests_SymfonyYadifLoaderTest');
 
         return $suite;
     }

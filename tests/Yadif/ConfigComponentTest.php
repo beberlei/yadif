@@ -1,8 +1,5 @@
 <?php
 
-require_once dirname(__FILE__)."/../Container.php";
-require_once "Fixture.php";
-require_once "PHPUnit/Framework.php";
 require_once "Zend/Config.php";
 
 class Yadif_Tests_ConfigComponentTest extends PHPUnit_Framework_TestCase

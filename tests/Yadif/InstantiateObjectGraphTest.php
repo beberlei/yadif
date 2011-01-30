@@ -1,9 +1,5 @@
 <?php
 
-require_once dirname(__FILE__)."/../Container.php";
-require_once "Fixture.php";
-require_once "PHPUnit/Framework.php";
-
 class Yadif_Tests_InstantiateObjectGraphTest extends PHPUnit_Framework_TestCase
 {
     public function testInstantiateObjectWithoutDependencies()
